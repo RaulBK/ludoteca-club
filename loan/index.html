@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📦 Préstamos — Club de Juegos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red:    #FF4D6D;
+      --yellow: #FFD166;
+      --green:  #06D6A0;
+      --blue:   #118AB2;
+      --purple: #845EC2;
+      --orange: #FF9A3C;
+      --bg:     #F4F7FB;
+      --card:   #FFFFFF;
+      --text:   #2D2D2D;
+      --muted:  #888;
+      --border: #E2EAF4;
+      --radius: 16px;
+      --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); }
+
+    .topbar {
+      background: linear-gradient(135deg, var(--orange), var(--red));
+      color: #fff;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar img { height: 36px; width: 36px; object-fit: contain; background: #fff; border-radius: 8px; padding: 3px; }
+    .topbar h1 { font-family: 'Fredoka One', cursive; font-size: 1.4rem; }
+    .topbar-links { display: flex; gap: 20px; }
+    .topbar a { color: rgba(255,255,255,.85); text-decoration: none; font-weight: 700; font-size: .9rem; }
+    .topbar a:hover { color: #fff; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 28px 16px 60px; }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-box {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      text-align: center;
+    }
+    .stat-box .val { font-family: 'Fredoka One', cursive; font-size: 2rem; color: var(--orange); }
+    .stat-box .lbl { font-size: .8rem; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+
+    .section-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+
+    /* New loan form */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width:600px){ .form-grid { grid-template-columns: 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label.fl { font-weight: 800; font-size: .85rem; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+
+    input[type=text], input[type=email], textarea, select.form-select {
+      border: 2.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color .2s;
+      width: 100%;
+    }
+    input:focus, textarea:focus, select.form-select:focus { border-color: var(--orange); }
+    textarea { resize: vertical; min-height: 70px; }
+
+    /* Game search */
+    .game-search-wrap { position: relative; }
+    .game-dropdown {
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      max-height: 260px;
+      overflow-y: auto;
+      z-index: 50;
+      display: none;
+    }
+    .game-dropdown.open { display: block; }
+    .game-option {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background .15s;
+      border-bottom: 1px solid var(--border);
+    }
+    .game-option:last-child { border-bottom: none; }
+    .game-option:hover { background: #f5f9ff; }
+    .game-option img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; background: #eee; }
+    .game-option-info strong { display: block; font-size: .95rem; }
+    .game-option-info span { font-size: .8rem; color: var(--muted); }
+    .game-option.unavailable { opacity: .5; pointer-events: none; }
+    .game-option.unavailable strong::after { content: ' — Ya prestado'; color: var(--red); font-weight: 400; }
+    .selected-game {
+      display: none;
+      align-items: center; gap: 12px;
+      background: #f0fff8;
+      border: 2px solid var(--green);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-top: 6px;
+    }
+    .selected-game.visible { display: flex; }
+    .selected-game img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+    .selected-game .clear { margin-left: auto; background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--muted); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 28px; border-radius: 40px;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem;
+      cursor: pointer; border: none; transition: all .2s;
+    }
+    .btn-primary { background: var(--orange); color: #fff; }
+    .btn-primary:hover { background: #e8873a; transform: translateY(-1px); }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+    .btn-success { background: var(--green); color: #fff; padding: 7px 18px; font-size: .85rem; }
+    .btn-success:hover { background: #05b886; }
+    .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 4px 8px; border-radius: 8px; transition: background .2s; }
+    .btn-icon:hover { background: #f0f0f0; }
+
+    /* Search bar */
+    .search-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .search-row input {
+      flex: 1; border: 2.5px solid var(--border); border-radius: 40px;
+      padding: 10px 20px; font-family: 'Nunito', sans-serif;
+      font-weight: 700; font-size: .95rem; outline: none;
+    }
+    .search-row input:focus { border-color: var(--orange); }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .tab {
+      padding: 9px 22px; border-radius: 40px; border: 2.5px solid var(--border);
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .9rem;
+      cursor: pointer; background: #fff; color: var(--text); transition: all .2s;
+    }
+    .tab.active { background: var(--orange); border-color: var(--orange); color: #fff; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { border-bottom: 2.5px solid var(--border); }
+    th { text-align: left; padding: 10px 12px; font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+    td { padding: 12px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fdf8f0; }
+
+    .game-thumb { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+    .game-thumb-empty { width: 40px; height: 40px; border-radius: 8px; background: linear-gradient(135deg, #ffe0b2, #fff3e0); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+
+    .status-pill {
+      display: inline-block; padding: 3px 12px; border-radius: 20px;
+      font-size: .78rem; font-weight: 800;
+    }
+    .status-active   { background: #FFF3CD; color: #b8860b; }
+    .status-returned { background: #D4EDDA; color: #1a7a4a; }
+    .status-overdue  { background: #FFE0E6; color: #c0392b; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: var(--text); color: #fff;
+      padding: 14px 24px; border-radius: 14px;
+      font-weight: 700; box-shadow: 0 6px 24px rgba(0,0,0,.2);
+      z-index: 999; transform: translateY(80px); opacity: 0; transition: all .3s;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--green); }
+    .toast.error   { background: var(--red); }
+
+    .loader-inline {
+      display: inline-block; width: 18px; height: 18px;
+      border: 3px solid #fff; border-top-color: transparent;
+      border-radius: 50%; animation: spin 1s linear infinite; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty { text-align: center; padding: 50px 20px; color: var(--muted); }
+    .empty-icon { font-size: 4rem; display: block; margin-bottom: 12px; }
+    .empty h3 { font-family: 'Fredoka One', cursive; font-size: 1.4rem; }
+
+    @media(max-width:600px) {
+      .topbar { padding: 14px 16px; }
+      .topbar h1 { font-size: 1.1rem; }
+      th, td { padding: 8px 8px; font-size: .85rem; }
+    }
+  
+    /* ── AUTH GATE ── */
+    .auth-gate {
+      display: none;
+      position: fixed; inset: 0; z-index: 1000;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .auth-gate.show { display: flex; }
+    .auth-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 100%; max-width: 380px;
+      text-align: center;
+      box-shadow: 0 24px 80px rgba(0,0,0,.4);
+      animation: authPop .4s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes authPop {
+      from { opacity:0; transform: scale(.85) translateY(20px); }
+      to   { opacity:1; transform: scale(1) translateY(0); }
+    }
+    .auth-box img { width: 64px; height: 64px; border-radius: 14px; margin-bottom: 16px; }
+    .auth-box h2 { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: #2D2D2D; margin-bottom: 4px; }
+    .auth-box p  { font-size: .88rem; color: #888; margin-bottom: 24px; }
+    .auth-input {
+      width: 100%;
+      border: 2.5px solid #E2EAF4;
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: .2em;
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+    .auth-input:focus { border-color: #845EC2; }
+    .auth-btn {
+      width: 100%;
+      background: #845EC2;
+      color: #fff;
+      border: none;
+      border-radius: 40px;
+      padding: 13px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .auth-btn:hover { background: #6e4ea8; transform: translateY(-1px); }
+    .auth-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+    .auth-error { color: #FF4D6D; font-size: .85rem; font-weight: 700; margin-top: 10px; min-height: 20px; }
+    .auth-loader { display:inline-block; width:16px; height:16px; border:3px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin2 1s linear infinite; vertical-align:middle; }
+    @keyframes spin2 { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<!-- Auth Gate -->
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <img src="/logo.png" alt="Club de Juegos" />
+    <h2>Área privada</h2>
+    <p>Club de Juegos · Acceso restringido</p>
+    <input class="auth-input" type="password" id="authInput" placeholder="Contraseña"
+      autocomplete="current-password" onkeydown="if(event.key==='Enter') checkAuth()" />
+    <button class="auth-btn" id="authBtn" onclick="checkAuth()">🔐 Entrar</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+
+
+<div class="topbar">
+  <div class="topbar-left">
+    <img src="/logo.png" alt="Logo" />
+    <h1>📦 Gestión de Préstamos</h1>
+  </div>
+  <div class="topbar-links">
+    <a href="/">🎲 Catálogo</a>
+    <a href="/admin">⚙️ Admin</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-box"><div class="val" id="statActive">–</div><div class="lbl">Prestados</div></div>
+    <div class="stat-box"><div class="val" id="statReturned">–</div><div class="lbl">Devueltos</div></div>
+    <div class="stat-box"><div class="val" id="statTotal">–</div><div class="lbl">Total préstamos</div></div>
+  </div>
+
+  <!-- New loan -->
+  <div class="section-title">➕ Nuevo préstamo</div>
+  <div class="card">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label class="fl">Juego *</label>
+        <div class="game-search-wrap">
+          <input type="text" id="gameSearch" placeholder="Busca el juego..." autocomplete="off" oninput="searchGames()" onfocus="showDropdown()" />
+          <div class="game-dropdown" id="gameDropdown"></div>
+        </div>
+        <div class="selected-game" id="selectedGame">
+          <img id="selectedImg" src="" alt="" />
+          <div><strong id="selectedName"></strong></div>
+          <button class="clear" onclick="clearGame()">✕</button>
+        </div>
+        <input type="hidden" id="selectedGameId" />
+      </div>
+      <div class="form-group full">
+        <label class="fl">Email de contacto *</label>
+        <input type="email" id="loanEmail" placeholder="alumno@colegio.es" />
+      </div>
+      <div class="form-group full">
+        <label class="fl">Notas (opcional)</label>
+        <textarea id="loanNotes" placeholder="Observaciones sobre el préstamo..."></textarea>
+      </div>
+    </div>
+    <div style="margin-top:20px">
+      <button class="btn btn-primary" id="btnLoan" onclick="createLoan()">📦 Registrar préstamo</button>
+    </div>
+  </div>
+
+  <!-- Loan list -->
+  <div class="section-title">📋 Historial de préstamos</div>
+  <div class="card">
+    <div class="search-row">
+      <input type="text" id="loanSearch" placeholder="🔍  Buscar por juego o email..." oninput="renderTable()" />
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="setTab(this,'active')">📤 Activos</button>
+      <button class="tab" onclick="setTab(this,'all')">📋 Todos</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Juego</th>
+            <th>Email</th>
+            <th>Fecha préstamo</th>
+            <th>Estado</th>
+            <th>Notas</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="loanTbody">
+          <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+  // ── SECURE API (via server proxy) ──
+  // ── Supabase directo (páginas protegidas por auth gate) ──
+  const SUPABASE_URL = 'https://jenjnkidfdtlcxxvntst.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Implbmpua2lkZmR0bGN4eHZudHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5Njg1NTQsImV4cCI6MjA4NzU0NDU1NH0.HOkPhe-WRYV1-NB0jeptj0PBvMVbBG5bWs4ZrLJP2b0';
+  const sbH = {
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    Prefer: 'return=representation'
+  };
+  const sbGet  = p => fetch(`${SUPABASE_URL}${p}`, { headers: sbH }).then(r => r.json());
+  const sbPost = (p,d) => fetch(`${SUPABASE_URL}${p}`, { method:'POST', headers: sbH, body: JSON.stringify(d) }).then(r => r.json());
+  const sbPatch= (p,d) => fetch(`${SUPABASE_URL}${p}`, { method:'PATCH', headers: {...sbH, Prefer:'return=minimal'}, body: JSON.stringify(d) });
+  const sbDel  = p => fetch(`${SUPABASE_URL}${p}`, { method:'DELETE', headers: sbH });
+
+  let allGames  = [];
+  let allLoans  = [];
+  let activeTab = 'active';
+  let selectedGameData = null;
+
+  function toast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast show ${type}`;
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  // ── Load data ──
+  async function loadAll() {
+    const [games, loans] = await Promise.all([
+      sbGet('/rest/v1/games?select=id,name_es,thumbnail_url,image_url&order=name_es.asc'),
+      sbGet('/rest/v1/loans?select=*&order=created_at.desc')
+    ]);
+    allGames = Array.isArray(games) ? games : [];
+    // Merge game data into each loan client-side
+    const gamesMap = Object.fromEntries(allGames.map(g => [g.id, g]));
+    allLoans = (Array.isArray(loans) ? loans : []).map(l => ({
+      ...l,
+      games: gamesMap[l.game_id] || {}
+    }));
+    updateStats();
+    renderTable();
+  }
+
+  function updateStats() {
+    const active   = allLoans.filter(l => !l.returned_at).length;
+    const returned = allLoans.filter(l =>  l.returned_at).length;
+    document.getElementById('statActive').textContent   = active;
+    document.getElementById('statReturned').textContent = returned;
+    document.getElementById('statTotal').textContent    = allLoans.length;
+  }
+
+  // ── Game search ──
+  function activeGameIds() {
+    return new Set(allLoans.filter(l => !l.returned_at).map(l => l.game_id));
+  }
+
+  function searchGames() {
+    const q = document.getElementById('gameSearch').value.toLowerCase().trim();
+    showDropdown(q);
+  }
+
+  function showDropdown(q = '') {
+    const dropdown = document.getElementById('gameDropdown');
+    const busy = activeGameIds();
+    const list  = allGames.filter(g => !q || g.name_es?.toLowerCase().includes(q));
+    if (!list.length) { dropdown.innerHTML = '<div style="padding:14px;color:var(--muted);text-align:center">Sin resultados</div>'; }
+    else {
+      dropdown.innerHTML = list.map(g => {
+        const unavailable = busy.has(g.id) ? 'unavailable' : '';
+        const img = g.thumbnail_url || g.image_url
+          ? `<img src="${g.thumbnail_url || g.image_url}" alt="" />`
+          : `<div style="width:36px;height:36px;border-radius:8px;background:#eee;display:flex;align-items:center;justify-content:center">🎲</div>`;
+        return `<div class="game-option ${unavailable}" onclick='selectGame(${JSON.stringify(g).replace(/'/g,"&#39;")})'>
+          ${img}
+          <div class="game-option-info"><strong>${g.name_es}</strong></div>
+        </div>`;
+      }).join('');
+    }
+    dropdown.classList.add('open');
+  }
+
+  function selectGame(g) {
+    selectedGameData = g;
+    document.getElementById('selectedGameId').value = g.id;
+    document.getElementById('selectedName').textContent = g.name_es;
+    document.getElementById('selectedImg').src = g.thumbnail_url || g.image_url || '';
+    document.getElementById('selectedImg').style.display = (g.thumbnail_url || g.image_url) ? 'block' : 'none';
+    document.getElementById('selectedGame').classList.add('visible');
+    document.getElementById('gameSearch').value = '';
+    document.getElementById('gameDropdown').classList.remove('open');
+  }
+
+  function clearGame() {
+    selectedGameData = null;
+    document.getElementById('selectedGameId').value = '';
+    document.getElementById('selectedGame').classList.remove('visible');
+    document.getElementById('gameSearch').value = '';
+  }
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.game-search-wrap')) {
+      document.getElementById('gameDropdown').classList.remove('open');
+    }
+  });
+
+  // ── Create loan ──
+  async function createLoan() {
+    const game_id = document.getElementById('selectedGameId').value;
+    const email   = document.getElementById('loanEmail').value.trim();
+    const notes   = document.getElementById('loanNotes').value.trim();
+
+    if (!game_id) { toast('Selecciona un juego', 'error'); return; }
+    if (!email)   { toast('Introduce el email de contacto', 'error'); return; }
+    if (!/\S+@\S+\.\S+/.test(email)) { toast('Email no válido', 'error'); return; }
+
+    const btn = document.getElementById('btnLoan');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loader-inline"></span> Registrando...';
+
+    try {
+      const result = await sbPost('/rest/v1/loans', { game_id: parseInt(game_id), email, notes: notes || null });
+      if (result?.error || result?.code) throw new Error(result.message || result.error);
+      toast('✅ Préstamo registrado');
+      clearGame();
+      document.getElementById('loanEmail').value = '';
+      document.getElementById('loanNotes').value = '';
+      await loadAll();
+        } catch(e) {
+      toast('Error: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '📦 Registrar préstamo';
+    }
+  }
+
+  // ── Return loan ──
+  async function returnLoan(id) {
+    await sbPatch(`/rest/v1/loans?id=eq.${id}`, { returned_at: new Date().toISOString() });
+    toast('✅ Devolución registrada');
+    await loadAll();
+  }
+
+  // ── Render table ──
+  function setTab(btn, tab) {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeTab = tab;
+    renderTable();
+  }
+
+  function renderTable() {
+    const q    = document.getElementById('loanSearch').value.toLowerCase();
+    let list   = activeTab === 'active' ? allLoans.filter(l => !l.returned_at) : allLoans;
+    if (q) list = list.filter(l =>
+      l.games?.name_es?.toLowerCase().includes(q) || l.email?.toLowerCase().includes(q)
+    );
+
+    const tbody = document.getElementById('loanTbody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><span class="empty-icon">📭</span><h3>Sin préstamos ${activeTab === 'active' ? 'activos' : ''}</h3></div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = list.map(l => {
+      const g      = l.games || {};
+      const img    = g.thumbnail_url || g.image_url
+        ? `<img class="game-thumb" src="${g.thumbnail_url || g.image_url}" />`
+        : `<div class="game-thumb-empty">🎲</div>`;
+      const date   = new Date(l.loaned_at).toLocaleDateString('es-ES');
+      const status = l.returned_at
+        ? `<span class="status-pill status-returned">✅ Devuelto<br><small>${new Date(l.returned_at).toLocaleDateString('es-ES')}</small></span>`
+        : `<span class="status-pill status-active">📤 Prestado</span>`;
+      const action = !l.returned_at
+        ? `<button class="btn btn-success" onclick="returnLoan(${l.id})">✅ Devuelto</button>`
+        : `<span style="color:var(--muted);font-size:.85rem">–</span>`;
+      return `<tr>
+        <td>${img}</td>
+        <td><strong>${g.name_es || '–'}</strong></td>
+        <td style="font-size:.9rem">${l.email}</td>
+        <td style="font-size:.9rem;color:var(--muted)">${date}</td>
+        <td>${status}</td>
+        <td style="font-size:.85rem;color:var(--muted);max-width:150px">${l.notes || '–'}</td>
+        <td>${action}</td>
+      </tr>`;
+    }).join('');
+  }
+
+
+  // ── AUTH ──
+  const AUTH_KEY = 'dsm_admin_token';
+  function isValidToken(token) {
+    if (!token) return false;
+    try {
+      const parts = atob(token).split(':');
+      if (parts[0] !== 'dsm-admin') return false;
+      return (Date.now() - parseInt(parts[1])) < 30 * 24 * 60 * 60 * 1000;
+    } catch(e) { return false; }
+  }
+  function initAuth() {
+    const token = localStorage.getItem(AUTH_KEY);
+    if (isValidToken(token)) {
+      document.getElementById('authGate').classList.remove('show');
+      document.body.style.overflow = '';
+    } else {
+      localStorage.removeItem(AUTH_KEY);
+      document.getElementById('authGate').classList.add('show');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('authInput').focus(), 400);
+    }
+  }
+  async function checkAuth() {
+    const password = document.getElementById('authInput').value;
+    if (!password) return;
+    const btn = document.getElementById('authBtn');
+    const err = document.getElementById('authError');
+    btn.disabled = true; btn.innerHTML = '<span class="auth-loader"></span>';
+    err.textContent = '';
+    try {
+      const res  = await fetch('/api/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ password }) });
+      const data = await res.json();
+      if (data.ok && data.token) {
+        localStorage.setItem(AUTH_KEY, data.token);
+        document.getElementById('authGate').classList.remove('show');
+        document.body.style.overflow = '';
+        loadAll();
+      } else {
+        err.textContent = '❌ Contraseña incorrecta';
+        document.getElementById('authInput').value = '';
+        document.getElementById('authInput').focus();
+      }
+    } catch(e) { err.textContent = '❌ Error de conexión'; }
+    finally { btn.disabled = false; btn.innerHTML = '🔐 Entrar'; }
+  }
+  initAuth();
+
+  loadAll();
+</script>
+</body>
+</html>

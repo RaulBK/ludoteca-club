@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Club de Juegos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --red:    #FF4D6D;
+      --yellow: #FFD166;
+      --green:  #06D6A0;
+      --blue:   #118AB2;
+      --purple: #845EC2;
+      --orange: #FF9A3C;
+      --bg:     #FFF9F0;
+      --card:   #FFFFFF;
+      --text:   #2D2D2D;
+      --muted:  #888;
+      --border: #F0E6D3;
+      --shadow: 0 4px 20px rgba(0,0,0,0.10);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 50%, var(--red) 100%);
+      padding: 28px 24px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '🎲🃏🎯🎮♟️🎰🎴🎪';
+      font-size: 2rem;
+      position: absolute;
+      top: 10px; left: 0; right: 0;
+      opacity: 0.15;
+      letter-spacing: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    header h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(2rem, 6vw, 3.8rem);
+      color: #fff;
+      text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+      letter-spacing: 1px;
+    }
+    header p {
+      color: rgba(255,255,255,0.85);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+
+    /* Wave */
+    .wave {
+      display: block;
+      width: 100%;
+      height: 60px;
+      margin-top: -2px;
+    }
+
+    /* ── SEARCH BAR ── */
+    .search-wrapper {
+      max-width: 900px;
+      margin: -40px auto 0;
+      padding: 0 16px;
+      position: relative;
+      z-index: 10;
+    }
+    .search-box {
+      display: flex;
+      background: #fff;
+      border-radius: 60px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      overflow: hidden;
+      border: 3px solid var(--yellow);
+    }
+    .search-box input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 16px 24px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      background: transparent;
+    }
+    .search-box input::placeholder { color: #ccc; font-weight: 400; }
+    .search-box button {
+      background: var(--yellow);
+      border: none;
+      padding: 0 28px;
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .search-box button:hover { background: #f0c040; }
+
+    /* ── FILTERS ── */
+    .filters-wrapper {
+      max-width: 1200px;
+      margin: 24px auto 0;
+      padding: 0 16px;
+    }
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .filter-group-full {
+      grid-column: 1 / -1;
+    }
+    .filter-label {
+      font-weight: 800;
+      font-size: .8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .tag-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .filter-select {
+      width: 100%;
+    }
+    .filter-select {
+      background: #fff;
+      border: 2.5px solid var(--border);
+      border-radius: 40px;
+      padding: 8px 20px;
+      font-family: 'Nunito', sans-serif;
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      outline: none;
+      transition: border-color .2s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    .filter-select:focus { border-color: var(--blue); }
+
+    .tag-btn {
+      background: #fff;
+      border: 2.5px solid var(--border);
+      border-radius: 40px;
+      padding: 8px 18px;
+      font-family: 'Nunito', sans-serif;
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      color: var(--text);
+    }
+    .tag-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+    .tag-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .tag-btn.active:hover { color: #fff; }
+
+    .results-count {
+      max-width: 1200px;
+      margin: 20px auto 0;
+      padding: 0 16px;
+      font-weight: 700;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+    .results-count span { color: var(--blue); }
+
+    /* ── GRID ── */
+    .grid {
+      max-width: 1200px;
+      margin: 20px auto 60px;
+      padding: 0 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 24px;
+    }
+
+    /* ── LOANED BADGE ── */
+    .loaned-badge {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(255,77,109,0.88);
+      color: #fff;
+      text-align: center;
+      font-weight: 800;
+      font-size: .85rem;
+      padding: 6px;
+      backdrop-filter: blur(2px);
+    }
+    .card-loaned { opacity: .85; }
+    .card-loaned:hover { opacity: 1; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: transform .25s, box-shadow .25s;
+      cursor: pointer;
+      border: 2px solid transparent;
+      position: relative;
+      animation: popIn .4s ease both;
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.92) translateY(10px); }
+      to   { opacity: 1; transform: scale(1)  translateY(0); }
+    }
+    .card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.16);
+      border-color: var(--yellow);
+    }
+    .card-img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      background: linear-gradient(135deg, #f0e6f6, #e0f0ff);
+      display: block;
+    }
+    .card-img-placeholder {
+      width: 100%;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      background: linear-gradient(135deg, #f0e6f6, #e0f0ff);
+    }
+    .card-body { padding: 14px 16px 16px; }
+    .card-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.05rem;
+      line-height: 1.3;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .badge-players { background: #E8F4FD; color: var(--blue); }
+    .badge-age     { background: #FFF3CD; color: #b8860b; }
+    .badge-weight  { background: #F0FFF4; color: #1a7a4a; }
+
+    .card-rating {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .rating-score {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.4rem;
+      color: var(--orange);
+    }
+    .rating-stars { color: var(--yellow); font-size: .9rem; letter-spacing: 1px; }
+    .rank-pill {
+      font-size: .75rem;
+      font-weight: 800;
+      background: var(--purple);
+      color: #fff;
+      padding: 2px 10px;
+      border-radius: 20px;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card);
+      border-radius: 24px;
+      max-width: 640px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp .3s ease;
+      position: relative;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: rgba(0,0,0,.1);
+      border: none; border-radius: 50%;
+      width: 36px; height: 36px;
+      font-size: 1.2rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .modal-close:hover { background: rgba(0,0,0,.2); }
+    .modal-img {
+      width: 100%; max-height: 280px;
+      object-fit: cover;
+      border-radius: 24px 24px 0 0;
+    }
+    .modal-body { padding: 24px; }
+    .modal-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.7rem;
+      margin-bottom: 6px;
+    }
+    .modal-bgg {
+      font-size: .85rem; color: var(--muted); margin-bottom: 16px;
+    }
+    .modal-bgg a { color: var(--blue); text-decoration: none; font-weight: 700; }
+    .modal-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--bg);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }
+    .stat-icon { font-size: 1.5rem; }
+    .stat-value {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      color: var(--blue);
+      display: block;
+    }
+    .stat-label {
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .modal-desc {
+      font-size: .95rem;
+      line-height: 1.7;
+      color: #555;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .empty-icon { font-size: 5rem; display: block; margin-bottom: 16px; }
+    .empty h3 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.6rem; color: var(--muted);
+    }
+
+    /* ── LOADER ── */
+    .loader-wrap {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: center;
+      padding: 60px;
+    }
+    .loader {
+      width: 52px; height: 52px;
+      border: 6px solid var(--border);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: .85rem;
+      color: var(--muted);
+      border-top: 2px dashed var(--border);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      .filters-grid { grid-template-columns: 1fr 1fr; }
+      .filter-group-full { grid-column: 1 / -1; }
+    }
+    @media (max-width: 480px) {
+      .filters-grid { grid-template-columns: 1fr; }
+      .filter-group-full { grid-column: 1; }
+      .filter-select { font-size: .9rem; padding: 10px 14px; padding-right: 32px; }
+      .tag-btn { padding: 8px 14px; font-size: .85rem; }
+      .grid { grid-template-columns: 1fr; gap: 16px; }
+    }
+  
+
+    .lang-btn {
+      position: fixed; top: 16px; right: 16px; z-index: 900;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(8px);
+      border: 2px solid rgba(61,43,31,.15);
+      border-radius: 40px;
+      padding: 7px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700; font-size: .85rem;
+      color: #3D2B1F;
+      text-decoration: none;
+      box-shadow: 0 2px 12px rgba(0,0,0,.1);
+      transition: all .2s;
+    }
+    .lang-btn:hover { border-color: #C9821A; color: #C9821A; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,.15); }
+
+  </style>
+</head>
+<body>
+
+<a href="/es/landing/" style="position:fixed;top:16px;left:16px;z-index:1000;background:rgba(255,255,255,.95);border:2px solid #E5E7EB;border-radius:30px;padding:6px 14px;font-weight:800;font-size:.85rem;color:#118AB2;text-decoration:none;backdrop-filter:blur(8px);box-shadow:0 2px 12px rgba(0,0,0,.08);">🏠 Inicio</a>
+<a href="/de/" class="lang-btn">🇩🇪 DE</a>
+
+<header>
+  <div style="display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap">
+    <img src="/logo.png" alt="Club de Juegos" style="height:80px;width:80px;object-fit:contain;border-radius:16px;background:#fff;padding:6px;box-shadow:0 4px 16px rgba(0,0,0,0.2)" />
+    <div>
+      <h1>Club de Juegos</h1>
+      <p>Descubre todos nuestros juegos de mesa</p>
+    </div>
+  </div>
+</header>
+<svg class="wave" viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+  <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="#FFF9F0"/>
+</svg>
+
+<div class="search-wrapper">
+  <div class="search-box">
+    <input id="searchInput" type="text" placeholder="🔍  Busca un juego..." />
+    <button onclick="applyFilters()">🔍</button>
+  </div>
+</div>
+
+<div class="filters-wrapper">
+  <div class="filters-grid">
+    <div class="filter-group">
+      <label class="filter-label">👥 Jugadores</label>
+      <select class="filter-select" id="filterPlayers" onchange="applyFilters()">
+        <option value="">Todos</option>
+        <option value="1">1+</option><option value="2">2+</option>
+        <option value="3">3+</option><option value="4">4+</option>
+        <option value="5">5+</option><option value="6">6+</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">🎂 Edad</label>
+      <select class="filter-select" id="filterAge" onchange="applyFilters()">
+        <option value="">Todas</option>
+        <option value="4">🎂 +4 años</option>
+        <option value="6">+6 años</option>
+        <option value="8">+8 años</option>
+        <option value="10">+10 años</option>
+        <option value="12">+12 años</option>
+        <option value="14">+14 años</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">↕️ Ordenar</label>
+      <select class="filter-select" id="filterSort" onchange="applyFilters()">
+        <option value="name">Nombre A–Z</option>
+        <option value="rating">Mejor valorados</option>
+        <option value="rank">Ranking BGG</option>
+        <option value="age">Edad mínima</option>
+      </select>
+    </div>
+    <div class="filter-group filter-group-full">
+      <label class="filter-label">🧠 Dificultad</label>
+      <div class="tag-group">
+        <button class="tag-btn active" data-weight="" onclick="setWeight(this,'')">Todas</button>
+        <button class="tag-btn" data-weight="1" onclick="setWeight(this,'1')">🟢 Fácil</button>
+        <button class="tag-btn" data-weight="2" onclick="setWeight(this,'2')">🟡 Media</button>
+        <button class="tag-btn" data-weight="3" onclick="setWeight(this,'3')">🔴 Difícil</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="results-count" id="resultsCount"></div>
+<div class="grid" id="gamesGrid"><div class="loader-wrap"><div class="loader"></div></div></div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalBox">
+    <button class="modal-close" onclick="closeModal(null)">✕</button>
+    <img id="modalImg" class="modal-img" src="" alt="" />
+    <div class="modal-body">
+      <div class="modal-title" id="modalTitle"></div>
+      <div id="modalLoan" style="margin-bottom:8px"></div>
+      <div class="modal-bgg" id="modalBgg"></div>
+      <div class="modal-stats" id="modalStats"></div>
+      <p class="modal-desc" id="modalDesc"></p>
+    </div>
+  </div>
+</div>
+
+<footer>🎲 Club de Juegos &nbsp;·&nbsp; Datos desde <a href="https://boardgamegeek.com" target="_blank">BoardGameGeek</a></footer>
+
+<script>
+  const SUPABASE_URL = 'https://jenjnkidfdtlcxxvntst.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Implbmpua2lkZmR0bGN4eHZudHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5Njg1NTQsImV4cCI6MjA4NzU0NDU1NH0.HOkPhe-WRYV1-NB0jeptj0PBvMVbBG5bWs4ZrLJP2b0';
+  const LANG = 'es';
+
+  let allGames = [];
+  let activeWeight = '';
+  let loanedGameIds = new Set();
+
+  async function loadGames() {
+    try {
+      try {
+        const lRes = await fetch(`${SUPABASE_URL}/rest/v1/loans?select=game_id&returned_at=is.null`, {
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
+        });
+        const loans = await lRes.json();
+        loanedGameIds = new Set(Array.isArray(loans) ? loans.map(l => l.game_id) : []);
+      } catch(e) { loanedGameIds = new Set(); }
+
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/games?select=*&order=name_es.asc`, {
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
+      });
+      allGames = await res.json();
+      applyFilters();
+    } catch(e) {
+      document.getElementById('gamesGrid').innerHTML = `<div class="empty"><span class="empty-icon">😕</span><h3>Error al cargar</h3></div>`;
+    }
+  }
+
+  function getName(g) {
+    if (LANG === 'de') return g.name_original || g.name_es || 'Unbekannt';
+    return g.name_es || g.name_original || 'Sin nombre';
+  }
+
+  function applyFilters() {
+    const q       = document.getElementById('searchInput').value.toLowerCase().trim();
+    const players = parseInt(document.getElementById('filterPlayers').value) || 0;
+    const age     = parseInt(document.getElementById('filterAge').value) || 0;
+    const sort    = document.getElementById('filterSort').value;
+    const wt      = parseFloat(activeWeight) || 0;
+
+    let list = allGames.filter(g => {
+      const name = getName(g).toLowerCase();
+      if (q && !name.includes(q) && !g.name_es?.toLowerCase().includes(q) && !g.name_original?.toLowerCase().includes(q)) return false;
+      if (players && !((g.min_players||1) <= players && (g.max_players||99) >= players)) return false;
+      if (age && (g.min_age||0) > age) return false;
+      if (wt===1 && (g.weight||0) >= 2) return false;
+      if (wt===2 && ((g.weight||0)<2||(g.weight||0)>3)) return false;
+      if (wt===3 && (g.weight||0) <= 3) return false;
+      return true;
+    });
+
+    if (sort==='rating') list.sort((a,b)=>(b.rating||0)-(a.rating||0));
+    else if (sort==='rank') list.sort((a,b)=>(a.bgg_rank||99999)-(b.bgg_rank||99999));
+    else if (sort==='age') list.sort((a,b)=>(a.min_age||0)-(b.min_age||0));
+    else list.sort((a,b)=>getName(a).localeCompare(getName(b)));
+
+    document.getElementById('resultsCount').innerHTML =
+      `Mostrando <span>${list.length}</span> de ${allGames.length} juegos`;
+    renderCards(list);
+  }
+
+  function renderCards(list) {
+    const grid = document.getElementById('gamesGrid');
+    if (!list.length) {
+      grid.innerHTML = `<div class="empty"><span class="empty-icon">🎲</span><h3>¡Prueba otros filtros!</h3></div>`;
+      return;
+    }
+    grid.innerHTML = list.map((g,i) => cardHTML(g,i)).join('');
+  }
+
+  function cardHTML(g, i) {
+    const name     = getName(g);
+    const rating   = g.rating ? parseFloat(g.rating).toFixed(1) : '–';
+    const stars    = ratingToStars(g.rating);
+    const img      = g.image_url ? `<img class="card-img" src="${g.image_url}" alt="${name}" loading="lazy" />` : `<div class="card-img-placeholder">🎲</div>`;
+    const rank     = g.bgg_rank ? `<span class="rank-pill">#${g.bgg_rank}</span>` : '';
+    const wpLabel  = weightLabel(g.weight);
+    const isLoaned = loanedGameIds.has(g.id);
+    return `
+    <div class="card ${isLoaned?'card-loaned':''}" style="animation-delay:${i*0.04}s" onclick='openModal(${JSON.stringify(g).replace(/'/g,"&#39;")})'>
+      <div style="position:relative">${img}${isLoaned?'<div class="loaned-badge">📤 Prestado</div>':''}</div>
+      <div class="card-body">
+        <div class="card-title">${name}</div>
+        <div class="card-meta">
+          ${g.min_players!=null?`<span class="badge badge-players">👥 ${g.min_players}${g.max_players&&g.max_players!==g.min_players?'–'+g.max_players:''}</span>`:''}
+          ${g.min_age?`<span class="badge badge-age">🎂 +${g.min_age}</span>`:''}
+          ${wpLabel?`<span class="badge badge-weight">${wpLabel}</span>`:''}
+        </div>
+        <div class="card-rating"><div><div class="rating-score">${rating}</div><div class="rating-stars">${stars}</div></div>${rank}</div>
+      </div>
+    </div>`;
+  }
+
+  function ratingToStars(r) {
+    if (!r) return '☆☆☆☆☆';
+    return '★'.repeat(Math.round(parseFloat(r)/2))+'☆'.repeat(5-Math.round(parseFloat(r)/2));
+  }
+  function weightLabel(w) {
+    if (!w) return '';
+    const v = parseFloat(w).toFixed(2);
+    if (w<2) return `🟢 ${v}`; if (w<=3) return `🟡 ${v}`; return `🔴 ${v}`;
+  }
+  function setWeight(btn, val) {
+    document.querySelectorAll('[data-weight]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); activeWeight=val; applyFilters();
+  }
+
+  function openModal(g) {
+    const name = getName(g);
+    document.getElementById('modalImg').src = g.image_url||'';
+    document.getElementById('modalImg').style.display = g.image_url?'block':'none';
+    document.getElementById('modalTitle').textContent = name;
+    const loaned = loanedGameIds.has(g.id);
+    document.getElementById('modalLoan').innerHTML = loaned
+      ? '<span style="background:#FFE0E6;color:#c0392b;padding:4px 14px;border-radius:20px;font-weight:800;font-size:.9rem">📤 Actualmente prestado</span>' : '';
+    document.getElementById('modalBgg').innerHTML = g.bgg_id
+      ? `ID BGG: <a href="https://boardgamegeek.com/boardgame/${g.bgg_id}" target="_blank">#${g.bgg_id} ↗</a>`
+      : (g.name_original&&LANG==='es' ? `Nombre original: ${g.name_original}` : '');
+    const stats = [
+      {icon:'⭐', value:g.rating?parseFloat(g.rating).toFixed(1):'–', label:'Nota'},
+      {icon:'🏆', value:g.bgg_rank?'#'+g.bgg_rank:'–', label:'Ranking BGG'},
+      {icon:'👥', value:g.min_players!=null?(g.min_players===g.max_players||!g.max_players?g.min_players:g.min_players+'–'+g.max_players):'–', label:'Jugadores'},
+      {icon:'⏱️', value:g.playtime?g.playtime+'min':'–', label:'Duración'},
+      {icon:'🎂', value:g.min_age?'+'+g.min_age+' años':'–', label:'Edad'},
+      {icon:'🧠', value:weightLabel(g.weight)||'–', label:'Dificultad'},
+    ];
+    document.getElementById('modalStats').innerHTML = stats.map(s=>
+      `<div class="stat-card"><div class="stat-icon">${s.icon}</div><span class="stat-value">${s.value}</span><div class="stat-label">${s.label}</div></div>`
+    ).join('');
+    document.getElementById('modalDesc').textContent = g.description||'';
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeModal(e) {
+    if (e&&e.target!==document.getElementById('modalOverlay')) return;
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow='';
+  }
+  document.getElementById('searchInput').addEventListener('input', applyFilters);
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(null); });
+  loadGames();
+</script>
+</body>
+</html>

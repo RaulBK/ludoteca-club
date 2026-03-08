@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8"/>
+<title>Club de Juegos</title>
+</head>
+<body>
+<script>
+  const lang = navigator.language || navigator.userLanguage || 'es';
+  window.location.href = lang.startsWith('de') ? '/de/landing/' : '/es/landing/';
+</script>
+</body></html>

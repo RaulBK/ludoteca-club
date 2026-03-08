@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📅 Sesiones — Club de Juegos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red:#FF4D6D; --yellow:#FFD166; --green:#06D6A0;
+      --blue:#118AB2; --purple:#845EC2; --orange:#FF9A3C;
+      --bg:#F4F7FB; --card:#fff; --text:#2D2D2D; --muted:#888;
+      --border:#E2EAF4; --radius:16px; --shadow:0 4px 20px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text)}
+
+    .topbar{background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    .topbar-left{display:flex;align-items:center;gap:12px}
+    .topbar img{height:36px;width:36px;object-fit:contain;background:#fff;border-radius:8px;padding:3px}
+    .topbar h1{font-family:'Fredoka One',cursive;font-size:1.4rem}
+    .topbar-links a{color:rgba(255,255,255,.85);text-decoration:none;font-weight:700;font-size:.9rem;margin-left:20px}
+    .topbar-links a:hover{color:#fff}
+
+    .container{max-width:1000px;margin:0 auto;padding:28px 16px 60px}
+
+    .section-title{font-family:'Fredoka One',cursive;font-size:1.4rem;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:24px}
+
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+    .form-group{display:flex;flex-direction:column;gap:6px}
+    .form-group.full{grid-column:1/-1}
+    label.fl{font-weight:800;font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+    input[type=text],input[type=date],input[type=time],textarea{
+      border:2.5px solid var(--border);border-radius:10px;padding:10px 14px;
+      font-family:'Nunito',sans-serif;font-size:1rem;font-weight:600;outline:none;
+      transition:border-color .2s;width:100%}
+    input:focus,textarea:focus{border-color:var(--purple)}
+    textarea{resize:vertical;min-height:70px}
+
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 26px;border-radius:40px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;border:none;transition:all .2s}
+    .btn-primary{background:var(--purple);color:#fff}
+    .btn-primary:hover{background:#6e4ea8;transform:translateY(-1px)}
+    .btn-primary:disabled{background:#ccc;cursor:not-allowed;transform:none}
+    .btn-sm{padding:7px 16px;font-size:.82rem;border-radius:30px;font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer;border:none;transition:all .2s}
+    .btn-green{background:var(--green);color:#fff}
+    .btn-green:hover{background:#05b886}
+    .btn-red{background:var(--red);color:#fff}
+    .btn-red:hover{background:#e03d5c}
+    .btn-blue{background:var(--blue);color:#fff}
+    .btn-blue:hover{background:#0e7299}
+    .btn-yellow{background:var(--yellow);color:var(--text)}
+    .btn-yellow:hover{background:#f0c040}
+
+    /* Session cards */
+    .sessions-list{display:flex;flex-direction:column;gap:16px}
+    .session-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 24px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center}
+    @media(max-width:600px){.session-card{grid-template-columns:1fr;gap:10px}}
+    .session-date-box{background:var(--purple);color:#fff;border-radius:14px;padding:12px 16px;text-align:center;min-width:72px}
+    .session-date-box .day{font-family:'Fredoka One',cursive;font-size:2rem;line-height:1}
+    .session-date-box .month{font-size:.8rem;font-weight:800;text-transform:uppercase;opacity:.85}
+    .session-info h3{font-family:'Fredoka One',cursive;font-size:1.15rem;margin-bottom:4px}
+    .session-info p{font-size:.88rem;color:var(--muted);font-weight:600}
+    .session-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+    @media(max-width:600px){.session-actions{flex-direction:row;flex-wrap:wrap}}
+
+    .pill{display:inline-block;padding:3px 12px;border-radius:20px;font-size:.75rem;font-weight:800}
+    .pill-open{background:#E8F5E9;color:#2e7d32}
+    .pill-closed{background:#FFEBEE;color:#c62828}
+    .pill-archived{background:#F3F3F3;color:#888}
+
+    .stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+    .stat-chip{background:var(--bg);border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700;color:var(--text)}
+
+    /* Modal */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:16px}
+    .modal-overlay.open{display:flex}
+    .modal{background:#fff;border-radius:20px;width:100%;max-width:560px;padding:28px;animation:pop .25s ease;position:relative;max-height:90vh;overflow-y:auto}
+    @keyframes pop{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+    .modal h2{font-family:'Fredoka One',cursive;font-size:1.4rem;margin-bottom:20px}
+    .modal-close{position:absolute;top:16px;right:16px;background:#f0f0f0;border:none;border-radius:50%;width:34px;height:34px;font-size:1.1rem;cursor:pointer}
+
+    /* Registrations view */
+    .reg-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:20px}
+    .reg-stat{background:var(--bg);border-radius:14px;padding:14px;text-align:center}
+    .reg-stat .val{font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--purple)}
+    .reg-stat .lbl{font-size:.75rem;font-weight:800;color:var(--muted);text-transform:uppercase}
+
+    .grade-chart{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+    .grade-row{display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:700}
+    .grade-bar-wrap{flex:1;background:#f0f0f0;border-radius:20px;height:22px;overflow:hidden}
+    .grade-bar{background:var(--purple);height:100%;border-radius:20px;transition:width .4s;display:flex;align-items:center;padding-left:8px;color:#fff;font-size:.75rem;font-weight:800}
+    .grade-label{width:60px;color:var(--muted)}
+    .grade-count{width:24px;text-align:right;color:var(--text)}
+
+    .reg-table{width:100%;border-collapse:collapse;font-size:.88rem}
+    .reg-table th{text-align:left;padding:8px 10px;font-size:.75rem;font-weight:800;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border)}
+    .reg-table td{padding:10px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+    .reg-table tr:last-child td{border-bottom:none}
+    .reg-table tr:hover td{background:#f9f7ff}
+
+    .copy-box{background:var(--bg);border-radius:12px;padding:14px;font-size:.85rem;line-height:1.6;margin-top:12px;white-space:pre-wrap;font-family:monospace;max-height:200px;overflow-y:auto}
+    .link-box{background:#f0f7ff;border:2px solid var(--blue);border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+    .link-box span{flex:1;font-weight:700;font-size:.9rem;word-break:break-all;color:var(--blue)}
+
+    .toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:12px 22px;border-radius:14px;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:999;transform:translateY(80px);opacity:0;transition:all .3s}
+    .toast.show{transform:translateY(0);opacity:1}
+    .toast.success{background:var(--green)}
+    .toast.error{background:var(--red)}
+
+    .loader-inline{display:inline-block;width:16px;height:16px;border:3px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .empty{text-align:center;padding:48px 20px;color:var(--muted)}
+    .empty-icon{font-size:3.5rem;display:block;margin-bottom:12px}
+  
+    /* ── AUTH GATE ── */
+    .auth-gate {
+      display: none;
+      position: fixed; inset: 0; z-index: 1000;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .auth-gate.show { display: flex; }
+    .auth-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 100%; max-width: 380px;
+      text-align: center;
+      box-shadow: 0 24px 80px rgba(0,0,0,.4);
+      animation: authPop .4s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes authPop {
+      from { opacity:0; transform: scale(.85) translateY(20px); }
+      to   { opacity:1; transform: scale(1) translateY(0); }
+    }
+    .auth-box img { width: 64px; height: 64px; border-radius: 14px; margin-bottom: 16px; }
+    .auth-box h2 { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: #2D2D2D; margin-bottom: 4px; }
+    .auth-box p  { font-size: .88rem; color: #888; margin-bottom: 24px; }
+    .auth-input {
+      width: 100%;
+      border: 2.5px solid #E2EAF4;
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: .2em;
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+    .auth-input:focus { border-color: #845EC2; }
+    .auth-btn {
+      width: 100%;
+      background: #845EC2;
+      color: #fff;
+      border: none;
+      border-radius: 40px;
+      padding: 13px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .auth-btn:hover { background: #6e4ea8; transform: translateY(-1px); }
+    .auth-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+    .auth-error { color: #FF4D6D; font-size: .85rem; font-weight: 700; margin-top: 10px; min-height: 20px; }
+    .auth-loader { display:inline-block; width:16px; height:16px; border:3px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin2 1s linear infinite; vertical-align:middle; }
+    @keyframes spin2 { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<!-- Auth Gate -->
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <img src="/logo.png" alt="Club de Juegos" />
+    <h2>Área privada</h2>
+    <p>Club de Juegos · Acceso restringido</p>
+    <input class="auth-input" type="password" id="authInput" placeholder="Contraseña"
+      autocomplete="current-password" onkeydown="if(event.key==='Enter') checkAuth()" />
+    <button class="auth-btn" id="authBtn" onclick="checkAuth()">🔐 Entrar</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+
+
+<div class="topbar">
+  <div class="topbar-left">
+    <img src="/logo.png" alt="Logo" />
+    <h1>📅 Gestión de Sesiones</h1>
+  </div>
+  <div class="topbar-links">
+    <a href="/loan">📦 Préstamos</a>
+    <a href="/admin">⚙️ Admin</a>
+    <a href="/">🎲 Catálogo</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Create session -->
+  <div class="section-title">➕ Nueva convocatoria</div>
+  <div class="card">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="fl">📅 Fecha *</label>
+        <input type="date" id="newDate" />
+      </div>
+      <div class="form-group">
+        <label class="fl">🕐 Horario</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="time" id="newTimeStart" value="10:00" style="flex:1" />
+          <span style="color:var(--muted);font-weight:700">–</span>
+          <input type="time" id="newTimeEnd" value="13:30" style="flex:1" />
+        </div>
+      </div>
+      <div class="form-group full">
+        <label class="fl">📍 Lugar (ES)</label>
+        <input type="text" id="newLocationEs" value="Cafetería del colegio" />
+      </div>
+      <div class="form-group full">
+        <label class="fl">📍 Ort (DE)</label>
+        <input type="text" id="newLocationDe" value="Cafeteria der Schule" />
+      </div>
+      <div class="form-group">
+        <label class="fl">Descripción adicional (ES)</label>
+        <textarea id="newDescEs" placeholder="Opcional..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="fl">Zusätzliche Beschreibung (DE)</label>
+        <textarea id="newDescDe" placeholder="Optional..."></textarea>
+      </div>
+    </div>
+    <div style="margin-top:20px">
+      <button class="btn btn-primary" id="btnCreate" onclick="createSession()">📅 Crear convocatoria</button>
+    </div>
+  </div>
+
+  <!-- Sessions list -->
+  <div class="section-title">📋 Convocatorias</div>
+  <div id="sessionsList">
+    <div class="empty"><span class="empty-icon">📅</span><p>Cargando...</p></div>
+  </div>
+
+</div>
+
+<!-- Registrations modal -->
+<div class="modal-overlay" id="regOverlay">
+  <div class="modal" style="max-width:700px">
+    <button class="modal-close" onclick="closeReg()">✕</button>
+    <h2 id="regTitle">Inscripciones</h2>
+
+    <div class="reg-stats" id="regStats"></div>
+
+    <div style="margin-bottom:12px;font-family:'Fredoka One',cursive;font-size:1rem;color:var(--purple)">📊 Distribución por cursos</div>
+    <div class="grade-chart" id="gradeChart"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:var(--purple)">📋 Lista de inscritos</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-sm btn-yellow" onclick="showEmailTemplate()">✉️ Recordatorio</button>
+        <button class="btn-sm btn-blue" onclick="exportCSV()">⬇️ Exportar CSV</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="reg-table" id="regTable">
+        <thead><tr>
+          <th>#</th><th>Adulto</th><th>Email</th><th>Adultos</th><th>Niños</th><th>Cursos</th><th>Juego preferido</th><th></th>
+        </tr></thead>
+        <tbody id="regTbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Email reminder -->
+    <div id="emailTemplateSection" style="display:none;margin-top:20px">
+      <div style="background:#f0fff8;border:2px solid var(--green);border-radius:12px;padding:14px;margin-bottom:16px">
+        <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:var(--green);margin-bottom:8px">📧 Enviar recordatorio por email</div>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:12px">Se enviará un recordatorio a todos los inscritos en esta sesión desde la cuenta del club.</p>
+        <button class="btn-sm btn-green" id="btnSendReminder" onclick="sendReminder()">📧 Enviar recordatorio ahora</button>
+        <div id="reminderStatus" style="margin-top:8px;font-size:.85rem;font-weight:700"></div>
+      </div>
+      <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:var(--purple);margin-bottom:8px">✉️ Lista de emails (BCC manual)</div>
+      <div class="copy-box" id="emailList"></div>
+      <button class="btn-sm btn-blue" style="margin-top:8px" onclick="copyEmails()">📋 Copiar emails</button>
+      <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:var(--purple);margin:16px 0 8px">📝 Texto del recordatorio</div>
+      <div class="copy-box" id="emailTemplate"></div>
+      <button class="btn-sm btn-blue" style="margin-top:8px" onclick="copyTemplate()">📋 Copiar texto</button>
+    </div>
+
+    <!-- Share link -->
+    <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:var(--purple);margin-top:20px;margin-bottom:8px">🔗 Enlace de inscripción</div>
+    <div class="link-box" style="margin-bottom:8px">
+      <span class="link-label">🇪🇸 ES</span>
+      <span id="shareLinkEs" style="flex:1;font-size:.85rem;color:var(--muted);word-break:break-all"></span>
+      <button class="btn-sm btn-blue" onclick="copyLinkEs()">📋 Copiar</button>
+    </div>
+    <div class="link-box">
+      <span class="link-label">🇩🇪 DE</span>
+      <span id="shareLinkDe" style="flex:1;font-size:.85rem;color:var(--muted);word-break:break-all"></span>
+      <button class="btn-sm btn-blue" onclick="copyLinkDe()">📋 Copiar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const BASE_URL = window.location.origin;
+  // ── Supabase directo (página protegida por auth gate) ──
+  const SUPABASE_URL = 'https://jenjnkidfdtlcxxvntst.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Implbmpua2lkZmR0bGN4eHZudHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5Njg1NTQsImV4cCI6MjA4NzU0NDU1NH0.HOkPhe-WRYV1-NB0jeptj0PBvMVbBG5bWs4ZrLJP2b0';
+  const sbH = {
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    Prefer: 'return=representation'
+  };
+  const sbGet  = p => fetch(`${SUPABASE_URL}${p}`, { headers: sbH }).then(r => r.json());
+  const sbPost = (p,d) => fetch(`${SUPABASE_URL}${p}`, { method:'POST', headers: sbH, body: JSON.stringify(d) }).then(r => r.json());
+  const sbPatch= (p,d) => fetch(`${SUPABASE_URL}${p}`, { method:'PATCH', headers: {...sbH, Prefer:'return=minimal'}, body: JSON.stringify(d) });
+  const sbDel  = p => fetch(`${SUPABASE_URL}${p}`, { method:'DELETE', headers: sbH });
+
+  let currentSession = null;
+  let currentRegs    = [];
+
+  function toast(msg, type='success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = `toast show ${type}`;
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  const MONTHS_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const DAYS_ES   = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const MONTHS_ES_FULL = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const DAYS_ES_FULL   = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const MONTHS_DE_FULL = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const DAYS_DE_FULL   = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+
+  function formatDate(dateStr) {
+    const d = new Date(dateStr + 'T12:00:00');
+    const fullEs = `${DAYS_ES_FULL[d.getDay()]}, ${d.getDate()} de ${MONTHS_ES_FULL[d.getMonth()]} de ${d.getFullYear()}`;
+    const fullDe = `${DAYS_DE_FULL[d.getDay()]}, ${d.getDate()}. ${MONTHS_DE_FULL[d.getMonth()]} ${d.getFullYear()}`;
+    return { day: d.getDate(), month: MONTHS_ES[d.getMonth()], weekday: DAYS_ES[d.getDay()], full: fullEs, fullDe };
+  }
+
+  // ── Create session ──
+  async function createSession() {
+    const date     = document.getElementById('newDate').value;
+    const timeStart= document.getElementById('newTimeStart').value;
+    const timeEnd  = document.getElementById('newTimeEnd').value;
+    const locEs    = document.getElementById('newLocationEs').value.trim();
+    const locDe    = document.getElementById('newLocationDe').value.trim();
+    const descEs   = document.getElementById('newDescEs').value.trim();
+    const descDe   = document.getElementById('newDescDe').value.trim();
+
+    if (!date) { toast('Selecciona una fecha', 'error'); return; }
+
+    const btn = document.getElementById('btnCreate');
+    btn.disabled = true; btn.innerHTML = '<span class="loader-inline"></span> Creando...';
+
+    try {
+      const result = await sbPost('/rest/v1/sessions', {
+        date, time_start: timeStart, time_end: timeEnd,
+        location_es: locEs, location_de: locDe,
+        description_es: descEs || null, description_de: descDe || null,
+        status: 'open'
+      });
+      if (result?.error || result?.code) throw new Error(result.message || 'Error al crear');
+      toast('✅ Convocatoria creada');
+      document.getElementById('newDate').value = '';
+      document.getElementById('newDescEs').value = '';
+      document.getElementById('newDescDe').value = '';
+      await loadSessions();
+        } catch(e) { toast('Error: ' + e.message, 'error'); }
+    finally { btn.disabled = false; btn.innerHTML = '📅 Crear convocatoria'; }
+  }
+
+  // ── Load sessions ──
+  async function loadSessions() {
+    const sessions = await sbGet('/rest/v1/sessions?select=*&order=date.desc');
+    if (!Array.isArray(sessions) || !sessions.length) {
+      document.getElementById('sessionsList').innerHTML = '<div class="empty"><span class="empty-icon">📅</span><p>No hay convocatorias aún. ¡Crea la primera!</p></div>';
+      return;
+    }
+
+    // Get registration counts
+    const regs = await sbGet('/rest/v1/registrations?select=session_id,num_adults,num_children');
+    const countMap = {};
+    if (Array.isArray(regs)) {
+      regs.forEach(r => {
+        if (!countMap[r.session_id]) countMap[r.session_id] = { groups: 0, adults: 0, children: 0 };
+        countMap[r.session_id].groups++;
+        countMap[r.session_id].adults   += r.num_adults   || 0;
+        countMap[r.session_id].children += r.num_children || 0;
+      });
+    }
+
+    document.getElementById('sessionsList').innerHTML = sessions.map(s => {
+      const d    = formatDate(s.date);
+      const c    = countMap[s.id] || { groups:0, adults:0, children:0 };
+      const pill = s.status === 'open' ? '<span class="pill pill-open">🟢 Abierta</span>'
+                 : s.status === 'closed' ? '<span class="pill pill-closed">🔴 Cerrada</span>'
+                 : '<span class="pill pill-archived">📦 Archivada</span>';
+      return `
+      <div class="session-card">
+        <div class="session-date-box">
+          <div class="day">${d.day}</div>
+          <div class="month">${d.month}</div>
+        </div>
+        <div class="session-info">
+          <h3>${d.weekday} ${d.day} ${d.month} &nbsp; ${pill}</h3>
+          <p>🕐 ${s.time_start}–${s.time_end} &nbsp;·&nbsp; 📍 ${s.location_es}</p>
+          <div class="stat-row">
+            <span class="stat-chip">👨‍👩‍👧 ${c.groups} grupos</span>
+            <span class="stat-chip">🧑 ${c.adults} adultos</span>
+            <span class="stat-chip">👶 ${c.children} niños</span>
+          </div>
+        </div>
+        <div class="session-actions">
+          <button class="btn-sm btn-blue" onclick="openReg(${s.id})">📋 Ver inscritos</button>
+          ${s.status === 'open'
+            ? `<button class="btn-sm btn-yellow" onclick="setStatus(${s.id},'closed')">🔒 Cerrar</button>`
+            : s.status === 'closed'
+            ? `<button class="btn-sm btn-green" onclick="setStatus(${s.id},'open')">🔓 Reabrir</button>`
+            : ''}
+          ${s.status !== 'archived' ? `<button class="btn-sm" style="background:#eee;color:#888" onclick="setStatus(${s.id},'archived')">📦 Archivar</button>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function setStatus(id, status) {
+    await sbPatch(`/rest/v1/sessions?id=eq.${id}`, { status });
+    toast(status === 'open' ? '✅ Sesión reabierta' : status === 'closed' ? '🔒 Sesión cerrada' : '📦 Archivada');
+    await loadSessions();
+  }
+
+  // ── Registrations modal ──
+  async function openReg(sessionId) {
+    const [sessions, regs] = await Promise.all([
+      sbGet(`/rest/v1/sessions?id=eq.${sessionId}&select=*`),
+      sbGet(`/rest/v1/registrations?session_id=eq.${sessionId}&select=*&order=created_at.asc`)
+    ]);
+    currentSession = Array.isArray(sessions) ? sessions[0] : null;
+    currentRegs    = Array.isArray(regs) ? regs : [];
+    if (!currentSession) return;
+
+    const d = formatDate(currentSession.date);
+    document.getElementById('regTitle').textContent = `Sesión ${d.full}`;
+    const _base = window.location.origin;
+    document.getElementById('shareLinkEs').textContent = `${_base}/es/inscripcion/?session=${sessionId}`;
+    document.getElementById('shareLinkDe').textContent = `${_base}/de/inscripcion/?session=${sessionId}`;
+    document.getElementById('emailTemplateSection').style.display = 'none';
+    renderRegStats();
+    renderGradeChart();
+    renderRegTable();
+    document.getElementById('regOverlay').classList.add('open');
+  }
+
+  function closeReg() { document.getElementById('regOverlay').classList.remove('open'); }
+
+  function renderRegStats() {
+    const totalGroups   = currentRegs.length;
+    const totalAdults   = currentRegs.reduce((a,r) => a + (r.num_adults||0), 0);
+    const totalChildren = currentRegs.reduce((a,r) => a + (r.num_children||0), 0);
+    const totalPeople   = totalAdults + totalChildren;
+    document.getElementById('regStats').innerHTML = [
+      { val: totalGroups,   lbl: 'Grupos' },
+      { val: totalAdults,   lbl: 'Adultos' },
+      { val: totalChildren, lbl: 'Niños' },
+      { val: totalPeople,   lbl: 'Total personas' },
+    ].map(s => `<div class="reg-stat"><div class="val">${s.val}</div><div class="lbl">${s.lbl}</div></div>`).join('');
+  }
+
+  function renderGradeChart() {
+    const gradeCounts = {};
+    currentRegs.forEach(r => {
+      [r.child1_grade, r.child2_grade, r.child3_grade, r.child4_grade].forEach(g => {
+        if (g) gradeCounts[g] = (gradeCounts[g]||0) + 1;
+      });
+    });
+    const grades = Object.entries(gradeCounts).sort((a,b) => {
+      const n = x => parseInt(x.replace(/\D/g,'')) || 99;
+      return n(a[0]) - n(b[0]);
+    });
+    const max = Math.max(...grades.map(g => g[1]), 1);
+    document.getElementById('gradeChart').innerHTML = grades.length
+      ? grades.map(([g, c]) => `
+        <div class="grade-row">
+          <div class="grade-label">${g}</div>
+          <div class="grade-bar-wrap">
+            <div class="grade-bar" style="width:${Math.round(c/max*100)}%">${c > 1 ? c : ''}</div>
+          </div>
+          <div class="grade-count">${c}</div>
+        </div>`).join('')
+      : '<p style="color:var(--muted);font-size:.9rem">Sin datos de cursos aún</p>';
+  }
+
+  async function deleteReg(id) {
+    if (!confirm('¿Eliminar esta inscripción?')) return;
+    await sbDel(`/rest/v1/registrations?id=eq.${id}`);
+    toast('🗑️ Inscripción eliminada');
+    currentRegs = currentRegs.filter(r => r.id !== id);
+    renderRegStats();
+    renderGradeChart();
+    renderRegTable();
+    await loadSessions();
+  }
+
+  function renderRegTable() {
+    const tbody = document.getElementById('regTbody');
+    if (!currentRegs.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">Sin inscripciones aún</td></tr>';
+      return;
+    }
+    tbody.innerHTML = currentRegs.map((r,i) => {
+      const grades = [r.child1_grade, r.child2_grade, r.child3_grade, r.child4_grade].filter(Boolean).join(', ');
+      return `<tr>
+        <td style="color:var(--muted)">${i+1}</td>
+        <td><strong>${r.adult_name}</strong></td>
+        <td style="font-size:.85rem">${r.email}</td>
+        <td style="text-align:center">${r.num_adults}</td>
+        <td style="text-align:center">${r.num_children}</td>
+        <td style="font-size:.85rem;color:var(--muted)">${grades || '–'}</td>
+        <td style="font-size:.85rem;color:var(--muted)">${r.comments || '–'}</td>
+        <td><button onclick="deleteReg(${r.id})" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:4px 8px;border-radius:8px;transition:background .2s" onmouseover="this.style.background='#fff0f3'" onmouseout="this.style.background='none'">🗑️</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function showEmailTemplate() {
+    const section = document.getElementById('emailTemplateSection');
+    section.style.display = section.style.display === 'none' ? 'block' : 'none';
+    if (section.style.display === 'none') return;
+
+    const emails = currentRegs.map(r => r.email).join(', ');
+    document.getElementById('emailList').textContent = emails;
+
+    const d = formatDate(currentSession.date);
+    const template = `Asunto: 🎲 Recordatorio — Club de Juegos | ${d.full}
+
+Hola,
+
+Os recordamos que la próxima sesión del Club de Juegos es:
+
+📅 Fecha: ${d.full}
+🕐 Horario: ${currentSession.time_start} – ${currentSession.time_end} h
+📍 Lugar: ${currentSession.location_es}
+💶 Donativo: 5 € por grupo (destinado a la compra de juegos para el colegio)
+
+🎲 ¿Quieres ver qué juegos tenemos disponibles? Consulta nuestro catálogo:
+https://ludoteca-dsm.netlify.app/
+
+---
+
+Hallo,
+
+wir möchten euch an die nächste Sitzung des Familien-Spieleclubs erinnern:
+
+📅 Datum: ${d.full}
+🕐 Zeit: ${currentSession.time_start} – ${currentSession.time_end} Uhr
+📍 Ort: ${currentSession.location_de}
+💶 Spende: 5 € pro Gruppe (für den Kauf von Spielen für die Schule)
+
+🎲 Unseren Spielekatalog findet ihr hier:
+https://ludoteca-dsm.netlify.app/
+
+---
+
+¡Nos vemos allí! / Wir sehen uns dort!
+Club de Juegos`;
+    document.getElementById('emailTemplate').textContent = template;
+  }
+
+  function copyEmails() {
+    navigator.clipboard.writeText(document.getElementById('emailList').textContent);
+    toast('📋 Emails copiados');
+  }
+  function copyTemplate() {
+    navigator.clipboard.writeText(document.getElementById('emailTemplate').textContent);
+    toast('📋 Plantilla copiada');
+  }
+  function copyLinkEs() {
+    navigator.clipboard.writeText(document.getElementById('shareLinkEs').textContent);
+    toast('🔗 Enlace ES copiado');
+  }
+  function copyLinkDe() {
+    navigator.clipboard.writeText(document.getElementById('shareLinkDe').textContent);
+    toast('🔗 Enlace DE copiado');
+  }
+
+  async function sendReminder() {
+    const btn = document.getElementById('btnSendReminder');
+    const status = document.getElementById('reminderStatus');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loader-inline" style="border-color:#fff;border-top-color:transparent"></span> Enviando...';
+    status.textContent = '';
+
+    try {
+      const d = formatDate(currentSession.date);
+      const emails = currentRegs.map(r => r.email);
+      const res = await fetch('/api/send-reminder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          emails,
+          subject: `🎲 Recordatorio — Club de Juegos | ${d.full}`,
+          sessionDate: d.full,
+          sessionDateDe: d.fullDe,
+          timeStart: currentSession.time_start,
+          timeEnd: currentSession.time_end,
+          locationEs: currentSession.location_es,
+          locationDe: currentSession.location_de,
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al enviar');
+      status.style.color = 'var(--green)';
+      status.textContent = `✅ Recordatorio enviado a ${emails.length} inscritos`;
+      toast(`✅ Recordatorio enviado a ${emails.length} personas`);
+    } catch(e) {
+      status.style.color = 'var(--red)';
+      status.textContent = '❌ Error: ' + e.message;
+      toast('Error al enviar: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '📧 Enviar recordatorio ahora';
+    }
+  }
+
+  function exportCSV() {
+    const headers = ['Nombre adulto','Email','Adultos','Niños','Curso niño 1','Curso niño 2','Curso niño 3','Curso niño 4','Juego preferido','Fecha inscripción'];
+    const rows = currentRegs.map(r => [
+      r.adult_name, r.email, r.num_adults, r.num_children,
+      r.child1_grade||'', r.child2_grade||'', r.child3_grade||'', r.child4_grade||'',
+      r.comments||'',
+      new Date(r.created_at).toLocaleDateString('es-ES')
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    const d = formatDate(currentSession.date);
+    a.download = `sesion_${currentSession.date}_inscritos.csv`;
+    a.click();
+  }
+
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeReg(); });
+
+  // ── AUTH ──
+  const AUTH_KEY = 'dsm_admin_token';
+  function isValidToken(token) {
+    if (!token) return false;
+    try {
+      const parts = atob(token).split(':');
+      if (parts[0] !== 'dsm-admin') return false;
+      return (Date.now() - parseInt(parts[1])) < 30 * 24 * 60 * 60 * 1000;
+    } catch(e) { return false; }
+  }
+  function initAuth() {
+    const token = localStorage.getItem(AUTH_KEY);
+    if (isValidToken(token)) {
+      document.getElementById('authGate').classList.remove('show');
+      document.body.style.overflow = '';
+    } else {
+      localStorage.removeItem(AUTH_KEY);
+      document.getElementById('authGate').classList.add('show');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('authInput').focus(), 400);
+    }
+  }
+  async function checkAuth() {
+    const password = document.getElementById('authInput').value;
+    if (!password) return;
+    const btn = document.getElementById('authBtn');
+    const err = document.getElementById('authError');
+    btn.disabled = true; btn.innerHTML = '<span class="auth-loader"></span>';
+    err.textContent = '';
+    try {
+      const res  = await fetch('/api/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ password }) });
+      const data = await res.json();
+      if (data.ok && data.token) {
+        localStorage.setItem(AUTH_KEY, data.token);
+        document.getElementById('authGate').classList.remove('show');
+        document.body.style.overflow = '';
+        loadSessions();
+      } else {
+        err.textContent = '❌ Contraseña incorrecta';
+        document.getElementById('authInput').value = '';
+        document.getElementById('authInput').focus();
+      }
+    } catch(e) { err.textContent = '❌ Error de conexión'; }
+    finally { btn.disabled = false; btn.innerHTML = '🔐 Entrar'; }
+  }
+  initAuth();
+
+  loadSessions();
+</script>
+</body>
+</html>

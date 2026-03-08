@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚙️ Admin — Club de Juegos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red:    #FF4D6D;
+      --yellow: #FFD166;
+      --green:  #06D6A0;
+      --blue:   #118AB2;
+      --purple: #845EC2;
+      --orange: #FF9A3C;
+      --bg:     #F4F7FB;
+      --card:   #FFFFFF;
+      --text:   #2D2D2D;
+      --muted:  #888;
+      --border: #E2EAF4;
+      --radius: 16px;
+      --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      color: #fff;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .topbar h1 { font-family: 'Fredoka One', cursive; font-size: 1.5rem; }
+    .topbar a {
+      color: rgba(255,255,255,.8);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: .9rem;
+    }
+    .topbar a:hover { color: #fff; }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 28px 16px 60px; }
+
+    /* ── SECTION ── */
+    .section-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+
+    /* ── FORM ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media(max-width:600px){ .form-grid { grid-template-columns: 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label.fl {
+      font-weight: 800;
+      font-size: .85rem;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--muted);
+    }
+    input[type=text], input[type=number] {
+      border: 2.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input:focus { border-color: var(--blue); }
+    .hint { font-size: .8rem; color: var(--muted); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+    }
+    .btn-primary { background: var(--green); color: #fff; }
+    .btn-primary:hover { background: #05c090; transform: translateY(-1px); }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+    .btn-danger  { background: var(--red); color: #fff; padding: 8px 18px; font-size: .85rem; }
+    .btn-danger:hover { background: #e03d5c; }
+    .btn-secondary { background: var(--yellow); color: var(--text); }
+    .btn-secondary:hover { background: #f0c040; }
+    .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 4px 8px; border-radius: 8px; transition: background .2s; }
+    .btn-icon:hover { background: #f0f0f0; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 28px; right: 28px;
+      background: var(--text);
+      color: #fff;
+      padding: 14px 24px;
+      border-radius: 14px;
+      font-weight: 700;
+      box-shadow: 0 6px 24px rgba(0,0,0,.2);
+      z-index: 999;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .3s;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--green); }
+    .toast.error   { background: var(--red); }
+
+    /* ── SEARCH ── */
+    .search-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .search-row input {
+      flex: 1;
+      border: 2.5px solid var(--border);
+      border-radius: 40px;
+      padding: 10px 20px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: .95rem;
+      outline: none;
+    }
+    .search-row input:focus { border-color: var(--blue); }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { border-bottom: 2.5px solid var(--border); }
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: .8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--muted);
+    }
+    td { padding: 12px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f9fbff; }
+    .game-thumb {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #eee;
+    }
+    .game-thumb-empty {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #e8d5f8, #d5e8f8);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+    .actions { display: flex; gap: 6px; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card);
+      border-radius: 20px;
+      width: 100%; max-width: 520px;
+      padding: 28px;
+      animation: pop .25s ease;
+      position: relative;
+    }
+    @keyframes pop { from { opacity:0; transform:scale(.93); } to { opacity:1; transform:scale(1); } }
+    .modal h2 { font-family:'Fredoka One',cursive; font-size:1.4rem; margin-bottom: 20px; }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: #f0f0f0; border: none; border-radius: 50%;
+      width: 34px; height: 34px; font-size: 1.1rem; cursor: pointer;
+    }
+    .bgg-preview {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+      display: none;
+    }
+    .bgg-preview.visible { display: flex; gap: 16px; align-items: flex-start; }
+    .bgg-preview img { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; }
+    .bgg-preview .info p { font-size: .9rem; color: var(--muted); margin-top: 4px; }
+
+    .loader-inline {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 3px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-box {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      text-align: center;
+    }
+    .stat-box .val { font-family:'Fredoka One',cursive; font-size:2rem; color:var(--blue); }
+    #statLastAdded { font-size:1rem; word-break:break-word; line-height:1.2; }
+    .stat-box .lbl { font-size: .8rem; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+  
+    /* ── AUTH GATE ── */
+    .auth-gate {
+      display: none;
+      position: fixed; inset: 0; z-index: 1000;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .auth-gate.show { display: flex; }
+    .auth-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 100%; max-width: 380px;
+      text-align: center;
+      box-shadow: 0 24px 80px rgba(0,0,0,.4);
+      animation: authPop .4s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes authPop {
+      from { opacity:0; transform: scale(.85) translateY(20px); }
+      to   { opacity:1; transform: scale(1) translateY(0); }
+    }
+    .auth-box img { width: 64px; height: 64px; border-radius: 14px; margin-bottom: 16px; }
+    .auth-box h2 { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: #2D2D2D; margin-bottom: 4px; }
+    .auth-box p  { font-size: .88rem; color: #888; margin-bottom: 24px; }
+    .auth-input {
+      width: 100%;
+      border: 2.5px solid #E2EAF4;
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: .2em;
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+    .auth-input:focus { border-color: #845EC2; }
+    .auth-btn {
+      width: 100%;
+      background: #845EC2;
+      color: #fff;
+      border: none;
+      border-radius: 40px;
+      padding: 13px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .auth-btn:hover { background: #6e4ea8; transform: translateY(-1px); }
+    .auth-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+    .auth-error { color: #FF4D6D; font-size: .85rem; font-weight: 700; margin-top: 10px; min-height: 20px; }
+    .auth-loader { display:inline-block; width:16px; height:16px; border:3px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin2 1s linear infinite; vertical-align:middle; }
+    @keyframes spin2 { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<!-- Auth Gate -->
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <img src="/logo.png" alt="Club de Juegos" />
+    <h2>Área privada</h2>
+    <p>Club de Juegos · Acceso restringido</p>
+    <input class="auth-input" type="password" id="authInput" placeholder="Contraseña"
+      autocomplete="current-password" onkeydown="if(event.key==='Enter') checkAuth()" />
+    <button class="auth-btn" id="authBtn" onclick="checkAuth()">🔐 Entrar</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:12px"><img src="/logo.png" style="height:36px;width:36px;object-fit:contain;background:#fff;border-radius:8px;padding:3px"/><h1>⚙️ Panel de Administración — Club de Juegos</h1></div>
+  <a href="/sessions">📅 Sesiones</a> &nbsp; <a href="/loan">📦 Préstamos</a> &nbsp; <a href="/">← Catálogo</a>
+</div>
+
+<div class="container">
+
+  <!-- Stats -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-box"><div class="val" id="statTotal">–</div><div class="lbl">Juegos</div></div>
+    <div class="stat-box"><div class="val" id="statAvgRating">–</div><div class="lbl">Nota media</div></div>
+    <div class="stat-box"><div class="val" id="statLastAdded">–</div><div class="lbl">Último añadido</div></div>
+  </div>
+
+  <!-- ── ADD GAME ── -->
+  <div class="section-title">➕ Añadir nuevo juego</div>
+  <div class="card">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="fl">Nombre en español *</label>
+        <input type="text" id="newNameEs" placeholder="Ej: Catan, Los Colonos de Catán..." />
+      </div>
+      <div class="form-group">
+        <label class="fl">ID de BoardGameGeek *</label>
+        <input type="number" id="newBggId" placeholder="Ej: 13, 174430, 224517..." />
+        <span class="hint">
+          💡 El ID está en la URL de BGG: boardgamegeek.com/boardgame/<strong>[ID]</strong>/nombre
+          &nbsp;·&nbsp;
+          <a href="https://boardgamegeek.com" target="_blank" style="color:var(--blue)">Buscar en BGG ↗</a>
+        </span>
+      </div>
+    </div>
+    <div class="bgg-preview" id="bggPreview">
+      <img id="previewImg" src="" alt="" />
+      <div class="info">
+        <strong id="previewTitle"></strong>
+        <p id="previewMeta"></p>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
+      <button class="btn btn-secondary" onclick="previewBGG()">🔍 Vista previa BGG</button>
+      <button class="btn btn-primary" id="btnAdd" onclick="addGame()">➕ Añadir juego</button>
+    </div>
+  </div>
+
+  <!-- ── GAME LIST ── -->
+  <div class="section-title">📚 Catálogo completo</div>
+  <div class="card">
+    <div class="search-row">
+      <input type="text" id="adminSearch" placeholder="🔍  Buscar juego..." oninput="renderAdminTable()" />
+    </div>
+    <div class="table-wrap">
+      <table id="adminTable">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Nombre (ES)</th>
+            <th>Nombre original</th>
+            <th>BGG ID</th>
+            <th>⭐ Nota</th>
+            <th>🏆 Rank</th>
+            <th>👥 Jugadores</th>
+            <th>🎂 Edad</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="adminTbody">
+          <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--muted)">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeEdit()">✕</button>
+    <h2>✏️ Editar juego</h2>
+    <input type="hidden" id="editId" />
+    <div class="form-grid" style="margin-top:0">
+      <div class="form-group full">
+        <label class="fl">Nombre en español *</label>
+        <input type="text" id="editNameEs" />
+      </div>
+      <div class="form-group">
+        <label class="fl">BGG ID</label>
+        <input type="number" id="editBggId" placeholder="Opcional" />
+      </div>
+      <div class="form-group">
+        <label class="fl">👥 Jugadores (mín – máx)</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="number" id="editMinPlayers" min="1" max="20" placeholder="Mín" style="width:50%" />
+          <span style="color:var(--muted);font-weight:700">–</span>
+          <input type="number" id="editMaxPlayers" min="1" max="20" placeholder="Máx" style="width:50%" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="fl">🎂 Edad mínima</label>
+        <input type="number" id="editMinAge" min="2" max="18" placeholder="Ej: 8" />
+      </div>
+      <div class="form-group">
+        <label class="fl">🧠 Dificultad (peso 1–5)</label>
+        <input type="number" id="editWeight" min="1" max="5" step="0.1" placeholder="Ej: 2.5" />
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="saveEdit()">💾 Guardar cambios</button>
+      <button class="btn btn-secondary" onclick="syncGame()">🔄 Re-sincronizar BGG</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-overlay" id="deleteOverlay">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <h2>🗑️ ¿Eliminar juego?</h2>
+    <p style="color:var(--muted);margin:12px 0 24px;font-size:.95rem">
+      Se eliminará <strong id="deleteGameName"></strong> del catálogo. Esta acción no se puede deshacer.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Eliminar</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('deleteOverlay').classList.remove('open')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── SECURE PROXY API ──
+  // ── Supabase directo (páginas protegidas por auth gate) ──
+  const SUPABASE_URL = 'https://jenjnkidfdtlcxxvntst.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Implbmpua2lkZmR0bGN4eHZudHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5Njg1NTQsImV4cCI6MjA4NzU0NDU1NH0.HOkPhe-WRYV1-NB0jeptj0PBvMVbBG5bWs4ZrLJP2b0';
+  const sbH = {
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    Prefer: 'return=representation'
+  };
+  const sbGet  = p => fetch(`${SUPABASE_URL}${p}`, { headers: sbH }).then(r => r.json());
+  const sbPost = (p,d) => fetch(`${SUPABASE_URL}${p}`, { method:'POST', headers: sbH, body: JSON.stringify(d) }).then(r => r.json());
+  const sbPatch= (p,d) => fetch(`${SUPABASE_URL}${p}`, { method:'PATCH', headers: {...sbH, Prefer:'return=minimal'}, body: JSON.stringify(d) });
+  const sbDel  = p => fetch(`${SUPABASE_URL}${p}`, { method:'DELETE', headers: sbH });
+
+  let allGames  = [];
+  let deleteTarget = null;
+  let editTarget   = null;
+
+  // ─── Toast ───
+  function toast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast show ${type}`;
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  // ─── Fetch & parse BGG API ───
+  async function fetchBGG(bggId) {
+    const res = await fetch(`/api/bgg?id=${bggId}`);
+    if (!res.ok) throw new Error(`Error al conectar con BGG (${res.status})`);
+    const xml  = await res.text();
+    const doc  = new DOMParser().parseFromString(xml, 'text/xml');
+    const item = doc.querySelector('item');
+    if (!item) throw new Error('Juego no encontrado en BGG');
+
+    const getValue = (tag, attr='value') => item.querySelector(tag)?.getAttribute(attr) || null;
+    const getInt   = (tag, attr='value') => { const v = getValue(tag, attr); return v ? parseInt(v) : null; };
+    const getFloat = (tag, attr='value') => { const v = getValue(tag, attr); return v ? parseFloat(v) : null; };
+
+    // name original (primary)
+    const nameNode = [...item.querySelectorAll('name')].find(n => n.getAttribute('type') === 'primary');
+    const name_original = nameNode?.getAttribute('value') || null;
+
+    const ratings = item.querySelector('ratings');
+
+    return {
+      bgg_id:       parseInt(bggId),
+      name_original,
+      image_url:    item.querySelector('image')?.textContent?.trim() || null,
+      thumbnail_url:item.querySelector('thumbnail')?.textContent?.trim() || null,
+      description_en: item.querySelector('description')?.textContent?.trim().substring(0,1500) || null,
+      min_players:  getInt('minplayers'),
+      max_players:  getInt('maxplayers'),
+      min_age:      getInt('minage'),
+      playtime:     getInt('playingtime'),
+      bgg_rank:     (() => {
+                      const rk = [...item.querySelectorAll('rank')].find(r => r.getAttribute('name')==='boardgame');
+                      const v = rk?.getAttribute('value'); return v && v !== 'Not Ranked' ? parseInt(v) : null;
+                    })(),
+      rating:       (() => { const v = ratings?.querySelector('average')?.getAttribute('value'); return v && v!=='0' ? parseFloat(parseFloat(v).toFixed(2)) : null; })(),
+      weight:       (() => { const v = ratings?.querySelector('averageweight')?.getAttribute('value'); return v && v!=='0' ? parseFloat(parseFloat(v).toFixed(2)) : null; })(),
+      updated_at:   new Date().toISOString(),
+    };
+  }
+
+  // ─── Preview BGG ───
+  async function previewBGG() {
+    const bggId = document.getElementById('newBggId').value;
+    if (!bggId) { toast('Introduce el ID de BGG primero', 'error'); return; }
+    try {
+      const data = await fetchBGG(bggId);
+      document.getElementById('previewImg').src = data.thumbnail_url || data.image_url || '';
+      document.getElementById('previewTitle').textContent = data.name_original || '(sin título)';
+      document.getElementById('previewMeta').textContent =
+        [data.min_players && `👥 ${data.min_players}–${data.max_players||'?'}`,
+         data.min_age && `🎂 +${data.min_age}`,
+         data.rating && `⭐ ${data.rating}`,
+         data.bgg_rank && `🏆 #${data.bgg_rank}`].filter(Boolean).join('  ·  ');
+      document.getElementById('bggPreview').classList.add('visible');
+    } catch(e) {
+      toast('No se encontró el juego en BGG. Comprueba el ID.', 'error');
+    }
+  }
+
+  // ─── Add game ───
+  async function addGame() {
+    const name_es = document.getElementById('newNameEs').value.trim();
+    const bgg_id  = document.getElementById('newBggId').value;
+    if (!name_es) { toast('El nombre en español es obligatorio', 'error'); return; }
+
+    const btn = document.getElementById('btnAdd');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loader-inline"></span> Guardando...';
+
+    try {
+      let gameData = { name_es };
+
+      if (bgg_id) {
+        btn.innerHTML = '<span class="loader-inline"></span> Consultando BGG...';
+        const bggData = await fetchBGG(bgg_id);
+
+        // Traducir descripción al español
+        let description = null;
+        if (bggData.description_en) {
+          try {
+            btn.innerHTML = '<span class="loader-inline"></span> Traduciendo descripción...';
+            const tr = await fetch('/api/translate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ text: bggData.description_en })
+            });
+            const trData = await tr.json();
+            description = trData.translated || bggData.description_en;
+          } catch(e) {
+            description = bggData.description_en;
+          }
+        }
+        delete bggData.description_en;
+        gameData = { name_es, ...bggData, description };
+      }
+      const result = await sbPost('/rest/v1/games', gameData);
+      if (result?.error) throw new Error(result.error.message || result.message);
+      toast(`✅ "${name_es}" añadido correctamente`);
+      document.getElementById('newNameEs').value = '';
+      document.getElementById('newBggId').value = '';
+      document.getElementById('bggPreview').classList.remove('visible');
+      await loadGames();
+    } catch(e) {
+      toast('Error al añadir: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '➕ Añadir juego';
+    }
+  }
+
+  // ─── Load games ───
+  async function loadGames() {
+    const games = await sbGet('/rest/v1/games?select=*&order=name_es.asc');
+    allGames = Array.isArray(games) ? games : [];
+    updateStats();
+    renderAdminTable();
+  }
+
+  function updateStats() {
+    document.getElementById('statTotal').textContent = allGames.length;
+    const rated = allGames.filter(g => g.rating);
+    const avg   = rated.length ? (rated.reduce((a,g) => a + parseFloat(g.rating), 0) / rated.length).toFixed(1) : '–';
+    document.getElementById('statAvgRating').textContent = avg;
+    const last  = allGames.slice().sort((a,b) => (b.id||0)-(a.id||0))[0];
+    const lastEl = document.getElementById('statLastAdded');
+    lastEl.textContent = last?.name_es || '–';
+    lastEl.title = last?.name_es || '';
+  }
+
+  function renderAdminTable() {
+    const q = document.getElementById('adminSearch').value.toLowerCase();
+    const list = allGames.filter(g =>
+      !q || g.name_es?.toLowerCase().includes(q) || g.name_original?.toLowerCase().includes(q) || String(g.bgg_id).includes(q)
+    );
+    const tbody = document.getElementById('adminTbody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--muted)">Sin resultados</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(g => `
+      <tr>
+        <td>${g.thumbnail_url || g.image_url
+          ? `<img class="game-thumb" src="${g.thumbnail_url || g.image_url}" />`
+          : `<div class="game-thumb-empty">🎲</div>`}</td>
+        <td><strong>${g.name_es || '–'}</strong></td>
+        <td style="color:var(--muted);font-size:.9rem">${g.name_original || '–'}</td>
+        <td>${g.bgg_id ? `<a href="https://boardgamegeek.com/boardgame/${g.bgg_id}" target="_blank" style="color:var(--blue);font-weight:700">${g.bgg_id}</a>` : '–'}</td>
+        <td>${g.rating ? '⭐ '+parseFloat(g.rating).toFixed(1) : '–'}</td>
+        <td>${g.bgg_rank ? '#'+g.bgg_rank : '–'}</td>
+        <td>${g.min_players != null ? (g.min_players===g.max_players||!g.max_players ? g.min_players : g.min_players+'–'+g.max_players) : '–'}</td>
+        <td>${g.min_age ? '+'+g.min_age : '–'}</td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon" title="Editar" onclick='openEdit(${JSON.stringify(g).replace(/'/g,"&#39;")})'>✏️</button>
+            <button class="btn-icon" title="Re-sincronizar BGG" onclick='resyncGame(${g.id}, ${g.bgg_id})'>🔄</button>
+            <button class="btn-icon" title="Eliminar" onclick='openDelete(${g.id}, "${g.name_es?.replace(/"/g,"&quot;")||''}")'>🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // ─── Edit ───
+  function openEdit(g) {
+    editTarget = g;
+    document.getElementById('editId').value         = g.id;
+    document.getElementById('editNameEs').value     = g.name_es      || '';
+    document.getElementById('editBggId').value      = g.bgg_id       || '';
+    document.getElementById('editMinPlayers').value = g.min_players  || '';
+    document.getElementById('editMaxPlayers').value = g.max_players  || '';
+    document.getElementById('editMinAge').value     = g.min_age      || '';
+    document.getElementById('editWeight').value     = g.weight       || '';
+    document.getElementById('editOverlay').classList.add('open');
+  }
+  function closeEdit() { document.getElementById('editOverlay').classList.remove('open'); }
+  async function saveEdit() {
+    const id          = document.getElementById('editId').value;
+    const name_es     = document.getElementById('editNameEs').value.trim();
+    const bgg_id      = document.getElementById('editBggId').value;
+    const min_players = document.getElementById('editMinPlayers').value;
+    const max_players = document.getElementById('editMaxPlayers').value;
+    const min_age     = document.getElementById('editMinAge').value;
+    const weight      = document.getElementById('editWeight').value;
+    if (!name_es) { toast('El nombre no puede estar vacío','error'); return; }
+    const patch = {
+      name_es,
+      bgg_id:      bgg_id      ? parseInt(bgg_id)      : null,
+      min_players: min_players ? parseInt(min_players) : null,
+      max_players: max_players ? parseInt(max_players) : null,
+      min_age:     min_age     ? parseInt(min_age)     : null,
+      weight:      weight      ? parseFloat(weight)    : null,
+    };
+    await sbPatch(`/rest/v1/games?id=eq.${id}`, patch);
+    toast('✅ Guardado');
+    closeEdit();
+    await loadGames();
+  }
+  async function syncGame() {
+    const id    = document.getElementById('editId').value;
+    const bggId = document.getElementById('editBggId').value;
+    if (!bggId) { toast('No hay ID de BGG','error'); return; }
+    try {
+      let data = await fetchBGG(bggId);
+      if (data.description_en) {
+        try {
+          const tr = await fetch('/api/translate', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text: data.description_en}) });
+          const trData = await tr.json();
+          data.description = trData.translated || data.description_en;
+        } catch(e) { data.description = data.description_en; }
+        delete data.description_en;
+      }
+      await sbPatch(`/rest/v1/games?id=eq.${id}`, data);
+      toast('✅ Datos actualizados desde BGG');
+      closeEdit();
+      await loadGames();
+    } catch(e) { toast('Error al sincronizar: '+e.message,'error'); }
+  }
+  async function resyncGame(id, bggId) {
+    if (!bggId) { toast('Sin ID de BGG','error'); return; }
+    try {
+      toast('🔄 Sincronizando con BGG...');
+      let data = await fetchBGG(bggId);
+      if (data.description_en) {
+        try {
+          const tr = await fetch('/api/translate', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text: data.description_en}) });
+          const trData = await tr.json();
+          data.description = trData.translated || data.description_en;
+        } catch(e) { data.description = data.description_en; }
+        delete data.description_en;
+      }
+      await sbPatch(`/rest/v1/games?id=eq.${id}`, data);
+      toast('✅ Datos actualizados desde BGG');
+      await loadGames();
+    } catch(e) { toast('Error: '+e.message,'error'); }
+  }
+
+  // ─── Delete ───
+  function openDelete(id, name) {
+    deleteTarget = id;
+    document.getElementById('deleteGameName').textContent = name;
+    document.getElementById('deleteOverlay').classList.add('open');
+  }
+  async function confirmDelete() {
+    await sbDelete(`/rest/v1/games?id=eq.${deleteTarget}`);
+    document.getElementById('deleteOverlay').classList.remove('open');
+    toast('🗑️ Juego eliminado');
+    await loadGames();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key==='Escape') {
+      closeEdit();
+      document.getElementById('deleteOverlay').classList.remove('open');
+    }
+  });
+
+  // ── AUTH ──
+  const AUTH_KEY = 'dsm_admin_token';
+  function isValidToken(token) {
+    if (!token) return false;
+    try {
+      const parts = atob(token).split(':');
+      if (parts[0] !== 'dsm-admin') return false;
+      return (Date.now() - parseInt(parts[1])) < 30 * 24 * 60 * 60 * 1000;
+    } catch(e) { return false; }
+  }
+  function initAuth() {
+    const token = localStorage.getItem(AUTH_KEY);
+    if (isValidToken(token)) {
+      document.getElementById('authGate').classList.remove('show');
+      document.body.style.overflow = '';
+    } else {
+      localStorage.removeItem(AUTH_KEY);
+      document.getElementById('authGate').classList.add('show');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('authInput').focus(), 400);
+    }
+  }
+  async function checkAuth() {
+    const password = document.getElementById('authInput').value;
+    if (!password) return;
+    const btn = document.getElementById('authBtn');
+    const err = document.getElementById('authError');
+    btn.disabled = true; btn.innerHTML = '<span class="auth-loader"></span>';
+    err.textContent = '';
+    try {
+      const res  = await fetch('/api/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ password }) });
+      const data = await res.json();
+      if (data.ok && data.token) {
+        localStorage.setItem(AUTH_KEY, data.token);
+        document.getElementById('authGate').classList.remove('show');
+        document.body.style.overflow = '';
+        loadGames();
+      } else {
+        err.textContent = '❌ Contraseña incorrecta';
+        document.getElementById('authInput').value = '';
+        document.getElementById('authInput').focus();
+      }
+    } catch(e) { err.textContent = '❌ Error de conexión'; }
+    finally { btn.disabled = false; btn.innerHTML = '🔐 Entrar'; }
+  }
+  initAuth();
+
+  loadGames();
+</script>
+</body>
+</html>

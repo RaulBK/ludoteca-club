@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8"/>
+<title>Inscripción · Club de Juegos</title>
+</head>
+<body>
+<script>
+  const lang    = navigator.language || navigator.userLanguage || 'es';
+  const qs      = window.location.search;
+  const base    = lang.startsWith('de') ? '/de/inscripcion/' : '/es/inscripcion/';
+  window.location.href = base + qs;
+</script>
+</body></html>

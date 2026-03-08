@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Club de Juegos · Juegos de mesa en familia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --red:    #FF4D6D;
+      --green:  #06D6A0;
+      --blue:   #118AB2;
+      --purple: #845EC2;
+      --yellow: #FFD166;
+      --bg:     #F0F4FF;
+      --card:   #FFFFFF;
+      --text:   #1a1a2e;
+      --muted:  #6B7280;
+      --border: #E5E7EB;
+      --radius: 16px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+    .lang-switch {
+      position: fixed; top: 16px; right: 16px; z-index: 1000;
+      background: rgba(255,255,255,.95); border: 2px solid var(--border);
+      border-radius: 30px; padding: 6px 14px; font-weight: 800;
+      font-size: .85rem; cursor: pointer; color: var(--blue);
+      text-decoration: none; backdrop-filter: blur(8px);
+      transition: all .2s; box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    .lang-switch:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+    header {
+      background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 55%, var(--red) 100%);
+      padding: 80px 24px 100px; text-align: center; position: relative; overflow: hidden;
+    }
+    header::before {
+      content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-logo {
+      width: 110px; height: 110px; object-fit: contain;
+      background: rgba(255,255,255,.15); border-radius: 24px; padding: 12px;
+      margin-bottom: 20px; border: 2px solid rgba(255,255,255,.3);
+    }
+    header h1 {
+      font-family: 'Fredoka One', cursive; font-size: clamp(2.4rem, 6vw, 4rem);
+      color: #fff; line-height: 1.1; margin-bottom: 12px; text-shadow: 0 2px 20px rgba(0,0,0,.2);
+    }
+    header p { color: rgba(255,255,255,.88); font-size: clamp(1rem, 2.5vw, 1.2rem); font-weight: 600; max-width: 520px; margin: 0 auto 32px; }
+    .hero-badges { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 16px; }
+    .badge { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); color: rgba(255,255,255,.9); border-radius: 8px; padding: 5px 13px; font-size: .82rem; font-weight: 600; letter-spacing: .01em; }
+    .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 55%, var(--red) 100%); padding: 16px 16px 48px; }
+    .btn-primary { background: #fff; color: var(--blue); padding: 14px 28px; border-radius: 50px; font-family: 'Fredoka One', cursive; font-size: 1.05rem; text-decoration: none; transition: all .2s; box-shadow: 0 4px 20px rgba(0,0,0,.15); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.2); }
+    .btn-secondary { background: rgba(255,255,255,.15); color: #fff; border: 2px solid rgba(255,255,255,.6); padding: 14px 28px; border-radius: 50px; font-family: 'Fredoka One', cursive; font-size: 1.05rem; text-decoration: none; transition: all .2s; }
+    .btn-secondary:hover { background: rgba(255,255,255,.25); transform: translateY(-2px); }
+
+    section { padding: 64px 24px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    .section-label { font-size: .75rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--purple); margin-bottom: 8px; }
+    .section-title { font-family: 'Fredoka One', cursive; font-size: clamp(1.8rem, 4vw, 2.6rem); color: var(--text); margin-bottom: 32px; line-height: 1.2; }
+    .section-title em { color: var(--blue); font-style: normal; }
+
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+    .step-card { background: var(--card); border-radius: var(--radius); padding: 28px 24px; border: 2px solid var(--border); transition: transform .2s, box-shadow .2s; position: relative; overflow: hidden; }
+    .step-card::before { content: attr(data-num); position: absolute; top: -10px; right: 12px; font-family: 'Fredoka One', cursive; font-size: 4.5rem; color: var(--border); line-height: 1; }
+    .step-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.08); }
+    .step-icon { font-size: 2rem; margin-bottom: 12px; }
+    .step-card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; }
+    .step-card p { font-size: .9rem; color: var(--muted); line-height: 1.6; }
+
+    .location-box { background: linear-gradient(135deg, var(--blue), var(--purple)); border-radius: var(--radius); padding: 36px; color: #fff; display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+    .location-pin { font-size: 2.5rem; flex-shrink: 0; background: rgba(255,255,255,.15); border-radius: 14px; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; }
+    .location-box h3 { font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 8px; }
+    .location-box p { font-size: .95rem; color: rgba(255,255,255,.85); line-height: 1.6; margin-bottom: 10px; }
+    .location-highlight { background: rgba(255,255,255,.2); border-radius: 6px; padding: 2px 8px; font-weight: 700; }
+    .location-warning { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 10px; padding: 12px 16px; font-size: .88rem; color: rgba(255,255,255,.9); margin-top: 4px; }
+
+    .donation-grid { display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: center; }
+    .donation-amount-box { background: linear-gradient(135deg, var(--green), #04a87e); border-radius: var(--radius); padding: 28px 36px; text-align: center; color: #fff; }
+    .donation-amount { font-family: 'Fredoka One', cursive; font-size: 3.5rem; line-height: 1; }
+    .donation-amount-box p { font-size: .85rem; font-weight: 700; opacity: .85; margin-top: 4px; }
+    .donation-info h3 { font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 10px; }
+    .donation-info p { font-size: .95rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+    .payment-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { background: var(--bg); border: 2px solid var(--border); border-radius: 30px; padding: 6px 14px; font-size: .82rem; font-weight: 700; color: var(--text); }
+
+    .sessions-section { background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 55%, var(--red) 100%); padding: 64px 24px; }
+    .sessions-section .section-label { color: rgba(255,255,255,.7); }
+    .sessions-section .section-title { color: #fff; }
+    .sessions-section .section-title em { color: var(--yellow); }
+    .session-card-landing { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: var(--radius); padding: 22px 24px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; backdrop-filter: blur(4px); transition: background .2s; }
+    .session-card-landing:hover { background: rgba(255,255,255,.18); }
+    .session-card-date { font-size: 1rem; font-weight: 800; color: #fff; margin-bottom: 5px; }
+    .session-card-meta { font-size: .88rem; color: rgba(255,255,255,.78); }
+    .session-card-desc { font-size: .83rem; color: rgba(255,255,255,.6); margin-top: 5px; }
+    .btn-inscribirse { background: var(--yellow); color: var(--text); padding: 11px 22px; border-radius: 50px; text-decoration: none; font-family: 'Fredoka One', cursive; font-size: .95rem; white-space: nowrap; transition: all .2s; box-shadow: 0 3px 12px rgba(0,0,0,.15); }
+    .btn-inscribirse:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
+    .no-sessions { background: rgba(255,255,255,.1); border: 1px dashed rgba(255,255,255,.3); border-radius: var(--radius); padding: 36px; text-align: center; color: rgba(255,255,255,.75); font-size: .95rem; }
+
+    .catalog-cta { background: var(--card); text-align: center; border-top: 2px solid var(--border); padding: 64px 24px; }
+    .catalog-cta .section-title em { color: var(--purple); }
+    .catalog-cta p { color: var(--muted); font-size: 1rem; max-width: 500px; margin: -16px auto 28px; line-height: 1.7; }
+    .btn-catalog { background: linear-gradient(135deg, var(--blue), var(--purple)); color: #fff; padding: 14px 32px; border-radius: 50px; text-decoration: none; font-family: 'Fredoka One', cursive; font-size: 1.05rem; transition: all .2s; box-shadow: 0 4px 20px rgba(132,94,194,.3); display: inline-block; }
+    .btn-catalog:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(132,94,194,.4); }
+
+    footer { background: var(--text); color: rgba(255,255,255,.45); text-align: center; padding: 28px 24px; font-size: .82rem; }
+    footer a { color: rgba(255,255,255,.6); }
+
+
+    /* ── OBJECTIVE GRID ── */
+    .objective-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+    .obj-card { background: var(--card); border-radius: var(--radius); padding: 24px 20px; border: 2px solid var(--border); transition: transform .2s, box-shadow .2s; }
+    .obj-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.08); }
+    .obj-icon { font-size: 2rem; margin-bottom: 10px; }
+    .obj-card h3 { font-size: 1rem; font-weight: 800; margin-bottom: 8px; color: var(--text); }
+    .obj-card p { font-size: .88rem; color: var(--muted); line-height: 1.65; }
+
+    /* ── RULES LIST ── */
+    .rules-list { display: flex; flex-direction: column; gap: 14px; }
+    .rule-row { display: flex; gap: 16px; align-items: flex-start; background: var(--bg); border-radius: 12px; padding: 16px 20px; border: 2px solid var(--border); font-size: .93rem; line-height: 1.6; color: var(--text); }
+    .rule-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 1px; }
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .55s ease, transform .55s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 600px) {
+      .donation-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<a class="lang-switch" href="/de/landing/">🇩🇪 Deutsch</a>
+
+<header>
+  <img src="/logo.png" alt="Club de Juegos" class="hero-logo"/>
+  <h1>🎲 Club de Juegos</h1>
+  <p>Sábados de juegos de mesa en familia en el colegio</p>
+  <div class="hero-badges">
+    <span class="badge">👨‍👩‍👧 Para toda la familia</span>
+    <span class="badge">🏫 el colegio</span>
+    <span class="badge">🎯 +70 juegos</span>
+  </div>
+</header>
+<div class="hero-cta">
+  <a href="#inscripcion" class="btn-primary" onclick="event.preventDefault();document.getElementById('inscripcion').scrollIntoView({behavior:'smooth'})">🎲 Ver sesiones abiertas</a>
+  <a href="/es/" class="btn-secondary">📚 Ver catálogo</a>
+</div>
+
+<!-- ── OBJETIVO ── -->
+<section>
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Nuestra misión</div>
+      <h2 class="section-title">¿Por qué este <em>club</em>?</h2>
+    </div>
+    <div class="objective-grid">
+      <div class="obj-card reveal">
+        <div class="obj-icon">🎲</div>
+        <h3>Juegos de mesa modernos</h3>
+        <p>Queremos acercar a las familias del colegio al mundo de los juegos de mesa modernos — un universo enorme, creativo y muy diferente al Parchís de toda la vida.</p>
+      </div>
+      <div class="obj-card reveal">
+        <div class="obj-icon">👨‍👩‍👧</div>
+        <h3>Tiempo en familia</h3>
+        <p>Los juegos de mesa son una actividad enriquecedora para el tiempo libre. Favorecen la comunicación, la complicidad y los buenos ratos entre padres e hijos.</p>
+      </div>
+      <div class="obj-card reveal">
+        <div class="obj-icon">🧠</div>
+        <h3>Beneficios educativos</h3>
+        <p>Pensamiento estratégico, toma de decisiones, matemáticas, lectura, trabajo en equipo... Los juegos de mesa desarrollan habilidades clave de forma natural y divertida.</p>
+      </div>
+      <div class="obj-card reveal">
+        <div class="obj-icon">📵</div>
+        <h3>Alternativa a las pantallas</h3>
+        <p>Para los más mayores, una excusa perfecta para desconectar del móvil y conectar con otras familias que comparten los mismos intereses.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CÓMO FUNCIONA ── -->
+<section style="background:var(--card);border-top:2px solid var(--border);border-bottom:2px solid var(--border);">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Participación</div>
+      <h2 class="section-title">¿Cómo <em>funciona</em>?</h2>
+    </div>
+    <div class="steps">
+      <div class="step-card reveal" data-num="01">
+        <div class="step-icon">📝</div>
+        <h3>Inscríbete cuando quieras</h3>
+        <p>Apúntate a la sesión que más te convenga. Puedes inscribirte a varias. Te enviaremos un recordatorio por email la semana previa a la sesión para que no se te olvide.</p>
+      </div>
+      <div class="step-card reveal" data-num="02">
+        <div class="step-icon">🎲</div>
+        <h3>Jugamos juntos</h3>
+        <p>En la cafetería del colegio, con los juegos del club o los que queráis traer de casa. ¡Ambiente relajado y familiar!</p>
+      </div>
+      <div class="step-card reveal" data-num="03">
+        <div class="step-icon">🏠</div>
+        <h3>Préstamo a domicilio</h3>
+        <p>¿Encontrasteis un juego que os encantó? Podéis llevarlo prestado a casa para seguir jugando en familia.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── UBICACIÓN ── -->
+<section>
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Dónde</div>
+      <h2 class="section-title">Cafetería del <em>colegio</em></h2>
+    </div>
+    <div class="location-box reveal">
+      <div class="location-pin">📍</div>
+      <div style="flex:1;min-width:200px">
+        <h3>Cafetería del colegio</h3>
+        <p>Nos encontramos en la cafetería del colegio. Es un espacio amplio, cómodo y perfecto para jugar en familia.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── NORMAS ── -->
+<section style="background:var(--card);border-top:2px solid var(--border);border-bottom:2px solid var(--border);">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">A tener en cuenta</div>
+      <h2 class="section-title">Normas de la <em>actividad</em></h2>
+    </div>
+    <div class="rules-list reveal">
+      <div class="rule-row">
+        <span class="rule-icon">📍</span>
+        <div><strong>Solo planta intermedia de la cafetería.</strong> No está permitido jugar en el patio ni en otras zonas del colegio. Tampoco se pueden traer bicicletas ni patinetes.</div>
+      </div>
+      <div class="rule-row">
+        <span class="rule-icon">🚻</span>
+        <div><strong>Baños.</strong> Solo están disponibles los de la zona deportiva.</div>
+      </div>
+      <div class="rule-row">
+        <span class="rule-icon">🧩</span>
+        <div><strong>Cuidar los juegos.</strong> Al terminar, aseguraos de recoger todos los componentes y dejarlos en su caja. ¡Son de todos!</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DONATIVO ── -->
+<section>
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Aportación</div>
+      <h2 class="section-title">Precio <em>simbólico</em></h2>
+    </div>
+    <div class="donation-grid reveal">
+      <div class="donation-amount-box">
+        <div class="donation-amount">5 €</div>
+        <p>por grupo participante</p>
+      </div>
+      <div class="donation-info">
+        <h3>Para seguir creciendo</h3>
+        <p>La donación se destina íntegramente a la adquisición de nuevos juegos para el club. Con tu aportación, el catálogo crece sesión a sesión.</p>
+        <div class="payment-chips">
+          <span class="chip">💵 Efectivo</span>
+          <span class="chip">📱 Bizum</span>
+          <span class="chip">💙 Se paga el día de la sesión</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sessions-section" id="inscripcion">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Próximas sesiones</div>
+      <h2 class="section-title">¡Inscríbete <em>ahora</em>!</h2>
+    </div>
+    <div id="sessionsContainer">
+      <div class="no-sessions">⏳ Cargando sesiones...</div>
+    </div>
+  </div>
+</section>
+
+<section class="catalog-cta">
+  <div class="container reveal">
+    <div class="section-label">Nuestros juegos</div>
+    <h2 class="section-title">Descubre el <em>catálogo</em></h2>
+    <p>Más de 70 juegos de mesa para todos los gustos y edades — desde clásicos familiares hasta títulos modernos de estrategia.</p>
+    <a href="/es/" class="btn-catalog">🎲 Ver catálogo completo</a>
+  </div>
+</section>
+
+<footer>
+  🎲 Club de Juegos &nbsp;·&nbsp; el colegio &nbsp;·&nbsp;
+  <a href="mailto:club.juegos.dsm@gmail.com">club.juegos.dsm@gmail.com</a>
+</footer>
+
+<script>
+  const SUPABASE_URL = 'https://jenjnkidfdtlcxxvntst.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Implbmpua2lkZmR0bGN4eHZudHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5Njg1NTQsImV4cCI6MjA4NzU0NDU1NH0.HOkPhe-WRYV1-NB0jeptj0PBvMVbBG5bWs4ZrLJP2b0';
+  const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const DAYS   = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+  async function loadSessions() {
+    const container = document.getElementById('sessionsContainer');
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/sessions?status=eq.open&date=gte.${today}&order=date.asc`,
+        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+      );
+      const data = await res.json();
+      if (!data?.length) {
+        container.innerHTML = '<div class="no-sessions">📅 Próximamente anunciaremos nuevas sesiones. ¡Síguenos para estar al tanto!</div>';
+        return;
+      }
+      container.innerHTML = data.map(s => {
+        const d = new Date(s.date + 'T12:00:00');
+        const dateStr = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()] + ' de ' + d.getFullYear();
+        return `<div class="session-card-landing">
+          <div class="session-card-info">
+            <div class="session-card-date">📅 ${dateStr}</div>
+            <div class="session-card-meta">🕐 ${s.time_start}–${s.time_end} h &nbsp;·&nbsp; 📍 ${s.location_es || ''}</div>
+            ${s.description_es ? `<div class="session-card-desc">${s.description_es}</div>` : ''}
+          </div>
+          <a href="/es/inscripcion/?session=${s.id}" class="btn-inscribirse">✅ Inscribirse</a>
+        </div>`;
+      }).join('');
+    } catch(e) {
+      container.innerHTML = '<div class="no-sessions">❌ No se pudo cargar la información de sesiones.</div>';
+    }
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  loadSessions();
+</script>
+</body>
+</html>
