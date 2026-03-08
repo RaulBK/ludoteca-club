@@ -731,7 +731,7 @@
     document.getElementById('deleteOverlay').classList.add('open');
   }
   async function confirmDelete() {
-    await sbDelete(`/rest/v1/games?id=eq.${deleteTarget}`);
+    await sbDel(`/rest/v1/games?id=eq.${deleteTarget}`);
     document.getElementById('deleteOverlay').classList.remove('open');
     toast('🗑️ Juego eliminado');
     await loadGames();
