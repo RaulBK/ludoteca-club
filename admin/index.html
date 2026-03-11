@@ -86,7 +86,7 @@
       letter-spacing: .5px;
       color: var(--muted);
     }
-    input[type=text], input[type=number] {
+    input[type=text], input[type=number], select {
       border: 2.5px solid var(--border);
       border-radius: 10px;
       padding: 10px 14px;
@@ -95,8 +95,10 @@
       font-weight: 600;
       outline: none;
       transition: border-color .2s;
+      background: #fff;
+      width: 100%;
     }
-    input:focus { border-color: var(--blue); }
+    input:focus, select:focus { border-color: var(--blue); }
     .hint { font-size: .8rem; color: var(--muted); }
 
     .btn {
@@ -362,6 +364,18 @@
           <a href="https://boardgamegeek.com" target="_blank" style="color:var(--blue)">Buscar en BGG ↗</a>
         </span>
       </div>
+      <div class="form-group">
+        <label class="fl">📍 Localización *</label>
+        <select id="newLocation">
+          <option value="">— Selecciona —</option>
+          <option value="club">Club</option>
+          <option value="ludoteca">Ludoteca</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="fl">📦 Unidades</label>
+        <input type="number" id="newUnits" min="1" max="99" placeholder="1" value="1" />
+      </div>
     </div>
     <div class="bgg-preview" id="bggPreview">
       <img id="previewImg" src="" alt="" />
@@ -394,6 +408,8 @@
             <th>🏆 Rank</th>
             <th>👥 Jugadores</th>
             <th>🎂 Edad</th>
+            <th>📍 Loc.</th>
+            <th>📦 Uds.</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -435,6 +451,18 @@
       <div class="form-group">
         <label class="fl">🧠 Dificultad (peso 1–5)</label>
         <input type="number" id="editWeight" min="1" max="5" step="0.1" placeholder="Ej: 2.5" />
+      </div>
+      <div class="form-group">
+        <label class="fl">📍 Localización *</label>
+        <select id="editLocation">
+          <option value="">— Selecciona —</option>
+          <option value="club">Club</option>
+          <option value="ludoteca">Ludoteca</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="fl">📦 Unidades</label>
+        <input type="number" id="editUnits" min="1" max="99" placeholder="1" />
       </div>
     </div>
     <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
@@ -549,16 +577,19 @@
 
   // ─── Add game ───
   async function addGame() {
-    const name_es = document.getElementById('newNameEs').value.trim();
-    const bgg_id  = document.getElementById('newBggId').value;
-    if (!name_es) { toast('El nombre en español es obligatorio', 'error'); return; }
+    const name_es  = document.getElementById('newNameEs').value.trim();
+    const bgg_id   = document.getElementById('newBggId').value;
+    const location = document.getElementById('newLocation').value;
+    const units    = parseInt(document.getElementById('newUnits').value) || 1;
+    if (!name_es)  { toast('El nombre en español es obligatorio', 'error'); return; }
+    if (!location) { toast('La localización es obligatoria', 'error'); return; }
 
     const btn = document.getElementById('btnAdd');
     btn.disabled = true;
     btn.innerHTML = '<span class="loader-inline"></span> Guardando...';
 
     try {
-      let gameData = { name_es };
+      let gameData = { name_es, location, units };
 
       if (bgg_id) {
         btn.innerHTML = '<span class="loader-inline"></span> Consultando BGG...';
@@ -581,13 +612,15 @@
           }
         }
         delete bggData.description_en;
-        gameData = { name_es, ...bggData, description };
+        gameData = { name_es, location, units, ...bggData, description };
       }
       const result = await sbPost('/rest/v1/games', gameData);
       if (result?.error) throw new Error(result.error.message || result.message);
       toast(`✅ "${name_es}" añadido correctamente`);
       document.getElementById('newNameEs').value = '';
       document.getElementById('newBggId').value = '';
+      document.getElementById('newLocation').value = '';
+      document.getElementById('newUnits').value = '1';
       document.getElementById('bggPreview').classList.remove('visible');
       await loadGames();
     } catch(e) {
@@ -639,6 +672,8 @@
         <td>${g.bgg_rank ? '#'+g.bgg_rank : '–'}</td>
         <td>${g.min_players != null ? (g.min_players===g.max_players||!g.max_players ? g.min_players : g.min_players+'–'+g.max_players) : '–'}</td>
         <td>${g.min_age ? '+'+g.min_age : '–'}</td>
+        <td><span style="font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:10px;background:${g.location==='ludoteca'?'#E8F5E9':'#EDE7F6'};color:${g.location==='ludoteca'?'#2e7d32':'#4527a0'}">${g.location||'–'}</span></td>
+        <td style="text-align:center;font-weight:700">${g.units||1}</td>
         <td>
           <div class="actions">
             <button class="btn-icon" title="Editar" onclick='openEdit(${JSON.stringify(g).replace(/'/g,"&#39;")})'>✏️</button>
@@ -660,6 +695,8 @@
     document.getElementById('editMaxPlayers').value = g.max_players  || '';
     document.getElementById('editMinAge').value     = g.min_age      || '';
     document.getElementById('editWeight').value     = g.weight       || '';
+    document.getElementById('editLocation').value   = g.location     || '';
+    document.getElementById('editUnits').value      = g.units        || 1;
     document.getElementById('editOverlay').classList.add('open');
   }
   function closeEdit() { document.getElementById('editOverlay').classList.remove('open'); }
@@ -672,6 +709,8 @@
     const min_age     = document.getElementById('editMinAge').value;
     const weight      = document.getElementById('editWeight').value;
     if (!name_es) { toast('El nombre no puede estar vacío','error'); return; }
+    const location = document.getElementById('editLocation').value;
+    if (!location) { toast('La localización es obligatoria','error'); return; }
     const patch = {
       name_es,
       bgg_id:      bgg_id      ? parseInt(bgg_id)      : null,
@@ -679,6 +718,8 @@
       max_players: max_players ? parseInt(max_players) : null,
       min_age:     min_age     ? parseInt(min_age)     : null,
       weight:      weight      ? parseFloat(weight)    : null,
+      location,
+      units: document.getElementById('editUnits').value ? parseInt(document.getElementById('editUnits').value) : 1,
     };
     await sbPatch(`/rest/v1/games?id=eq.${id}`, patch);
     toast('✅ Guardado');

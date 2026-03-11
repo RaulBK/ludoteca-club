@@ -92,7 +92,7 @@
     .grade-chart{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
     .grade-row{display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:700}
     .grade-bar-wrap{flex:1;background:#f0f0f0;border-radius:20px;height:22px;overflow:hidden}
-    .grade-bar{background:var(--purple);height:100%;border-radius:20px;transition:width .4s;display:flex;align-items:center;padding-left:8px;color:#fff;font-size:.75rem;font-weight:800}
+    .grade-bar{height:100%;border-radius:20px;transition:width .4s;display:flex;align-items:center;padding-left:8px;color:#fff;font-size:.75rem;font-weight:800}
     .grade-label{width:60px;color:var(--muted)}
     .grade-count{width:24px;text-align:right;color:var(--text)}
 
@@ -491,12 +491,13 @@
       return n(a[0]) - n(b[0]);
     });
     const max = Math.max(...grades.map(g => g[1]), 1);
+    const barColors = ['#E53935','#F4511E','#FB8C00','#FDD835','#7CB342','#43A047','#00ACC1','#1E88E5','#3949AB','#8E24AA','#D81B60'];
     document.getElementById('gradeChart').innerHTML = grades.length
-      ? grades.map(([g, c]) => `
+      ? grades.map(([g, c], i) => `
         <div class="grade-row">
           <div class="grade-label">${g}</div>
           <div class="grade-bar-wrap">
-            <div class="grade-bar" style="width:${Math.round(c/max*100)}%">${c > 1 ? c : ''}</div>
+            <div class="grade-bar" style="width:${Math.round(c/max*100)}%;background:${barColors[i % barColors.length]}">${c > 1 ? c : ''}</div>
           </div>
           <div class="grade-count">${c}</div>
         </div>`).join('')
