@@ -504,6 +504,14 @@
       </select>
     </div>
     <div class="filter-group">
+      <label class="filter-label">📍 Standort</label>
+      <select class="filter-select" id="filterLocation" onchange="applyFilters()">
+        <option value="">Alle</option>
+        <option value="club">Club</option>
+        <option value="ludoteca">Ludoteca</option>
+      </select>
+    </div>
+    <div class="filter-group">
       <label class="filter-label">↕️ Sortieren</label>
       <select class="filter-select" id="filterSort" onchange="applyFilters()">
         <option value="name">Name A–Z</option>
@@ -550,7 +558,7 @@
 
   let allGames = [];
   let activeWeight = '';
-  let loanedGameIds = new Set();
+  let loanedCounts = {};
 
   async function loadGames() {
     try {
@@ -559,13 +567,24 @@
           headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
         });
         const loans = await lRes.json();
-        loanedGameIds = new Set(Array.isArray(loans) ? loans.map(l => l.game_id) : []);
-      } catch(e) { loanedGameIds = new Set(); }
+        loanedCounts = {};
+        if (Array.isArray(loans)) loans.forEach(l => { loanedCounts[l.game_id] = (loanedCounts[l.game_id]||0) + 1; });
+      } catch(e) { loanedCounts = {}; }
 
       const res = await fetch(`${SUPABASE_URL}/rest/v1/games?select=*&order=name_es.asc`, {
         headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
       });
-      allGames = await res.json();
+      const rawGames = await res.json();
+      // Group by bgg_id (or id if no bgg_id) — unified card per game
+      const grouped = {};
+      rawGames.forEach(g => {
+        const key = g.bgg_id ? `bgg_${g.bgg_id}` : `id_${g.id}`;
+        if (!grouped[key]) {
+          grouped[key] = { ...g, locations: [] };
+        }
+        grouped[key].locations.push({ id: g.id, location: g.location, units: g.units || 1 });
+      });
+      allGames = Object.values(grouped);
       applyFilters();
     } catch(e) {
       document.getElementById('gamesGrid').innerHTML = `<div class="empty"><span class="empty-icon">😕</span><h3>Error al cargar</h3></div>`;
@@ -582,7 +601,8 @@
     const players = parseInt(document.getElementById('filterPlayers').value) || 0;
     const age     = parseInt(document.getElementById('filterAge').value) || 0;
     const sort    = document.getElementById('filterSort').value;
-    const wt      = parseFloat(activeWeight) || 0;
+    const wt       = parseFloat(activeWeight) || 0;
+    const location = document.getElementById('filterLocation').value;
 
     let list = allGames.filter(g => {
       const name = getName(g).toLowerCase();
@@ -592,6 +612,7 @@
       if (wt===1 && (g.weight||0) >= 2) return false;
       if (wt===2 && ((g.weight||0)<2||(g.weight||0)>3)) return false;
       if (wt===3 && (g.weight||0) <= 3) return false;
+      if (location && !(g.locations||[{location:g.location}]).some(l=>l.location===location)) return false;
       return true;
     });
 
@@ -621,7 +642,9 @@
     const img      = g.image_url ? `<img class="card-img" src="${g.image_url}" alt="${name}" loading="lazy" />` : `<div class="card-img-placeholder">🎲</div>`;
     const rank     = g.bgg_rank ? `<span class="rank-pill">#${g.bgg_rank}</span>` : '';
     const wpLabel  = weightLabel(g.weight);
-    const isLoaned = loanedGameIds.has(g.id);
+    const totalUnits = (g.locations||[{id:g.id,units:g.units||1}]).reduce((s,l)=>s+l.units,0);
+    const totalLoaned = (g.locations||[{id:g.id}]).reduce((s,l)=>s+(loanedCounts[l.id]||0),0);
+    const isLoaned = totalLoaned >= totalUnits;
     return `
     <div class="card ${isLoaned?'card-loaned':''}" style="animation-delay:${i*0.04}s" onclick='openModal(${JSON.stringify(g).replace(/'/g,"&#39;")})'>
       <div style="position:relative">${img}${isLoaned?'<div class="loaned-badge">📤 Verliehen</div>':''}</div>
@@ -656,9 +679,16 @@
     document.getElementById('modalImg').src = g.image_url||'';
     document.getElementById('modalImg').style.display = g.image_url?'block':'none';
     document.getElementById('modalTitle').textContent = name;
-    const loaned = loanedGameIds.has(g.id);
-    document.getElementById('modalLoan').innerHTML = loaned
-      ? '<span style="background:#FFE0E6;color:#c0392b;padding:4px 14px;border-radius:20px;font-weight:800;font-size:.9rem">📤 Aktuell verliehen</span>' : '';
+    const locs = g.locations || [{id:g.id, location:g.location, units:g.units||1}];
+    const totalUnitsM = locs.reduce((s,l)=>s+l.units,0);
+    const totalLoanedM = locs.reduce((s,l)=>s+(loanedCounts[l.id]||0),0);
+    const totalAvailM = totalUnitsM - totalLoanedM;
+    const loanBadge = totalAvailM <= 0
+      ? '<span style="background:#FFE0E6;color:#c0392b;padding:4px 14px;border-radius:20px;font-weight:800;font-size:.9rem">📤 Nicht verfügbar</span>'
+      : totalLoanedM > 0
+        ? `<span style="background:#FFF9C4;color:#f57f17;padding:4px 14px;border-radius:20px;font-weight:800;font-size:.9rem">📤 ${totalAvailM} / ${totalUnitsM} verfügbar</span>`
+        : '';
+    document.getElementById('modalLoan').innerHTML = loanBadge;
     document.getElementById('modalBgg').innerHTML = g.bgg_id
       ? `ID BGG: <a href="https://boardgamegeek.com/boardgame/${g.bgg_id}" target="_blank">#${g.bgg_id} ↗</a>`
       : (g.name_original&&LANG==='es' ? `Originalname: ${g.name_original}` : '');
@@ -669,6 +699,13 @@
       {icon:'⏱️', value:g.playtime?g.playtime+'min':'–', label:'Dauer'},
       {icon:'🎂', value:g.min_age?'+'+g.min_age+' Jahre':'–', label:'Alter'},
       {icon:'🧠', value:weightLabel(g.weight)||'–', label:'Schwierigkeit'},
+      {icon:'📍', value:locs.map(l=>l.location==='ludoteca'?'Ludoteca':'Club').join(' · '), label:'Standort'},
+      {icon:'📦', value:locs.map(l=>{
+        const locName = l.location==='ludoteca'?'Ludoteca':'Club';
+        const avail = Math.max(0, l.units-(loanedCounts[l.id]||0));
+        const color = avail > 0 ? '#059669' : '#c0392b';
+        return `<span style="color:${color};font-weight:800">${locName}</span> ${avail}/${l.units}`;
+      }).join('<br>'), label:'Verfügbar'},
     ];
     document.getElementById('modalStats').innerHTML = stats.map(s=>
       `<div class="stat-card"><div class="stat-icon">${s.icon}</div><span class="stat-value">${s.value}</span><div class="stat-label">${s.label}</div></div>`
