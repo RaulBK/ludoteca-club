@@ -124,7 +124,7 @@
     .game-option-info strong { display: block; font-size: .95rem; }
     .game-option-info span { font-size: .8rem; color: var(--muted); }
     .game-option.unavailable { opacity: .5; pointer-events: none; }
-    .game-option.unavailable strong::after { content: ' — Ya prestado'; color: var(--red); font-weight: 400; }
+    .game-option.unavailable strong::after { content: ' — Sin unidades disponibles'; color: var(--red); font-weight: 400; }
     .selected-game {
       display: none;
       align-items: center; gap: 12px;
@@ -351,9 +351,14 @@
     <div class="search-row">
       <input type="text" id="loanSearch" placeholder="🔍  Buscar por juego o email..." oninput="renderTable()" />
     </div>
-    <div class="tabs">
-      <button class="tab active" onclick="setTab(this,'active')">📤 Activos</button>
-      <button class="tab" onclick="setTab(this,'all')">📋 Todos</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div class="tabs">
+        <button class="tab active" onclick="setTab(this,'active')">📤 Activos</button>
+        <button class="tab" onclick="setTab(this,'all')">📋 Todos</button>
+      </div>
+      <button class="btn" id="btnReminder" style="background:#EDE7F6;color:#4527a0;font-weight:800;font-size:.85rem;padding:8px 18px;border-radius:40px" onclick="sendAllReminders()">
+        📧 Recordatorio préstamos activos
+      </button>
     </div>
     <div class="table-wrap">
       <table>
@@ -365,11 +370,12 @@
             <th>Fecha préstamo</th>
             <th>Estado</th>
             <th>Notas</th>
+            <th>Devolución</th>
             <th>Acción</th>
           </tr>
         </thead>
         <tbody id="loanTbody">
-          <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Cargando...</td></tr>
+          <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Cargando...</td></tr>
         </tbody>
       </table>
     </div>
@@ -411,7 +417,7 @@
   // ── Load data ──
   async function loadAll() {
     const [games, loans] = await Promise.all([
-      sbGet('/rest/v1/games?select=id,name_es,thumbnail_url,image_url&order=name_es.asc'),
+      sbGet('/rest/v1/games?select=id,name_es,thumbnail_url,image_url,location,units&order=name_es.asc'),
       sbGet('/rest/v1/loans?select=*&order=created_at.desc')
     ]);
     allGames = Array.isArray(games) ? games : [];
@@ -434,8 +440,10 @@
   }
 
   // ── Game search ──
-  function activeGameIds() {
-    return new Set(allLoans.filter(l => !l.returned_at).map(l => l.game_id));
+  function activeGameCounts() {
+    const counts = {};
+    allLoans.filter(l => !l.returned_at).forEach(l => { counts[l.game_id] = (counts[l.game_id]||0) + 1; });
+    return counts;
   }
 
   function searchGames() {
@@ -445,18 +453,22 @@
 
   function showDropdown(q = '') {
     const dropdown = document.getElementById('gameDropdown');
-    const busy = activeGameIds();
+    const counts = activeGameCounts();
     const list  = allGames.filter(g => !q || g.name_es?.toLowerCase().includes(q));
     if (!list.length) { dropdown.innerHTML = '<div style="padding:14px;color:var(--muted);text-align:center">Sin resultados</div>'; }
     else {
       dropdown.innerHTML = list.map(g => {
-        const unavailable = busy.has(g.id) ? 'unavailable' : '';
+        const active = counts[g.id] || 0;
+        const units  = g.units || 1;
+        const avail  = units - active;
+        const unavailable = avail <= 0 ? 'unavailable' : '';
+        const availLabel = units > 1 ? `<span style="font-size:.72rem;font-weight:700;color:${avail>0?'#059669':'#c0392b'};margin-left:6px">${avail}/${units} disponibles</span>` : '';
         const img = g.thumbnail_url || g.image_url
           ? `<img src="${g.thumbnail_url || g.image_url}" alt="" />`
           : `<div style="width:36px;height:36px;border-radius:8px;background:#eee;display:flex;align-items:center;justify-content:center">🎲</div>`;
         return `<div class="game-option ${unavailable}" onclick='selectGame(${JSON.stringify(g).replace(/'/g,"&#39;")})'>
           ${img}
-          <div class="game-option-info"><strong>${g.name_es}</strong></div>
+          <div class="game-option-info"><strong>${g.name_es}</strong><span style="font-size:.75rem;color:var(--muted);margin-left:6px">${g.location==='ludoteca'?'📍 Ludoteca':g.location==='club'?'📍 Club':''}</span>${availLabel}</div>
         </div>`;
       }).join('');
     }
@@ -518,6 +530,29 @@
   }
 
   // ── Return loan ──
+  async function sendAllReminders() {
+    const active = allLoans.filter(l => !l.returned_at);
+    if (!active.length) { toast('No hay préstamos activos', 'error'); return; }
+    const btn = document.getElementById('btnReminder');
+    btn.disabled = true; btn.innerHTML = '⏳ Enviando...';
+    let sent = 0, errors = 0;
+    for (const l of active) {
+      try {
+        const res  = await fetch('/api/send-return-reminder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ loan_id: l.id })
+        });
+        const data = await res.json();
+        if (data.ok) sent++; else errors++;
+      } catch(e) { errors++; }
+    }
+    toast(errors === 0
+      ? `📧 ${sent} recordatorio${sent>1?'s':''} enviado${sent>1?'s':''}`
+      : `📧 ${sent} enviados, ${errors} con error`);
+    btn.disabled = false; btn.innerHTML = '📧 Recordatorio préstamos activos';
+  }
+
   async function returnLoan(id) {
     await sbPatch(`/rest/v1/loans?id=eq.${id}`, { returned_at: new Date().toISOString() });
     toast('✅ Devolución registrada');
@@ -541,7 +576,7 @@
 
     const tbody = document.getElementById('loanTbody');
     if (!list.length) {
-      tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><span class="empty-icon">📭</span><h3>Sin préstamos ${activeTab === 'active' ? 'activos' : ''}</h3></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><span class="empty-icon">📭</span><h3>Sin préstamos ${activeTab === 'active' ? 'activos' : ''}</h3></div></td></tr>`;
       return;
     }
 
@@ -554,16 +589,22 @@
       const status = l.returned_at
         ? `<span class="status-pill status-returned">✅ Devuelto<br><small>${new Date(l.returned_at).toLocaleDateString('es-ES')}</small></span>`
         : `<span class="status-pill status-active">📤 Prestado</span>`;
+      const returnMethod = !l.returned_at
+        ? (l.return_method === 'sesion'   ? '<span style="color:#059669;font-weight:700;font-size:.85rem">📅 Próxima sesión</span>'
+          : l.return_method === 'porteria' ? `<span style="color:#7C3AED;font-weight:700;font-size:.85rem">🏫 Portería</span>${l.return_name ? `<br><small style="color:var(--muted)">${l.return_name}<br>${l.return_date ? new Date(l.return_date+'T12:00:00').toLocaleDateString('es-ES') : ''}</small>` : ''}`
+          : '<span style="color:var(--muted);font-size:.85rem">⏳ Pendiente</span>')
+        : '<span style="color:var(--muted);font-size:.85rem">–</span>';
       const action = !l.returned_at
         ? `<button class="btn btn-success" onclick="returnLoan(${l.id})">✅ Devuelto</button>`
-        : `<span style="color:var(--muted);font-size:.85rem">–</span>`;
+        : '<span style="color:var(--muted);font-size:.85rem">–</span>';
       return `<tr>
         <td>${img}</td>
-        <td><strong>${g.name_es || '–'}</strong></td>
+        <td><strong>${g.name_es || '–'}</strong><br><span style="font-size:.75rem;font-weight:700;color:${g.location==='ludoteca'?'#2e7d32':'#4527a0'}">${g.location==='ludoteca'?'📍 Ludoteca':g.location==='club'?'📍 Club':''}</span></td>
         <td style="font-size:.9rem">${l.email}</td>
         <td style="font-size:.9rem;color:var(--muted)">${date}</td>
         <td>${status}</td>
         <td style="font-size:.85rem;color:var(--muted);max-width:150px">${l.notes || '–'}</td>
+        <td>${returnMethod}</td>
         <td>${action}</td>
       </tr>`;
     }).join('');
