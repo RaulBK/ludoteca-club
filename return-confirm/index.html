@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirmar devolución · Club de Juegos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --purple: #7C3AED; --green: #06D6A0; --blue: #2563EB;
+      --red: #EF4444; --text: #1a1a2e; --muted: #888; --border: #E2EAF4; --bg: #F8F9FB;
+    }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); min-height: 100vh;
+      display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card {
+      background: #fff; border-radius: 20px; padding: 36px 32px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.10); max-width: 480px; width: 100%; text-align: center;
+    }
+    .icon { font-size: 3rem; margin-bottom: 12px; }
+    h1 { font-family: 'Fredoka One', cursive; font-size: 1.6rem; color: var(--text); margin-bottom: 8px; }
+    .subtitle { color: var(--muted); font-size: .95rem; margin-bottom: 28px; }
+    .game-name { font-weight: 800; color: var(--purple); }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; text-align: left; }
+    label { font-size: .82rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+    input { border: 2.5px solid var(--border); border-radius: 10px; padding: 10px 14px;
+      font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 600; outline: none;
+      transition: border-color .2s; width: 100%; }
+    input:focus { border-color: var(--purple); }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 40px; font-family: 'Nunito', sans-serif;
+      font-size: 1rem; font-weight: 800; cursor: pointer; transition: all .2s; margin-top: 8px; }
+    .btn-green  { background: var(--green);  color: #fff; }
+    .btn-purple { background: var(--purple); color: #fff; }
+    .btn:hover { transform: translateY(-1px); opacity: .9; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+    .success { display: none; }
+    .success.show { display: block; }
+    .error-msg { color: var(--red); font-size: .9rem; margin-top: 12px; }
+    .loader { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,.4);
+      border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="card" id="mainCard">
+  <div class="icon" id="cardIcon">📦</div>
+  <h1 id="cardTitle">Confirmar devolución</h1>
+  <p class="subtitle" id="cardSubtitle">Rückgabe bestätigen</p>
+
+  <!-- Sesion confirmation (no form needed) -->
+  <div id="viewSesion" style="display:none">
+    <p style="margin-bottom:24px;color:#555">
+      Perfecto, te esperamos con <span class="game-name" id="gameNameSesion"></span> en la próxima sesión.<br>
+      <small style="color:var(--muted)">Wir erwarten dich mit dem Spiel bei der nächsten Sitzung.</small>
+    </p>
+    <button class="btn btn-green" id="btnConfirmSesion" onclick="confirmSesion()">
+      ✅ Confirmar — Lo traeré a la sesión
+    </button>
+  </div>
+
+  <!-- Porteria form -->
+  <div id="viewPorteria" style="display:none">
+    <p style="margin-bottom:20px;color:#555;text-align:left">
+      Indica tu nombre completo y el día en que lo dejarás en portería.<br>
+      <small style="color:var(--muted)">Bitte Name und Datum für die Abgabe an der Schulpforte angeben.</small>
+    </p>
+    <div class="form-group">
+      <label>Nombre y apellidos / Name</label>
+      <input type="text" id="returnName" placeholder="Ej: Ana García López" />
+    </div>
+    <div class="form-group">
+      <label>Día de devolución / Rückgabedatum</label>
+      <input type="date" id="returnDate" />
+    </div>
+    <button class="btn btn-purple" id="btnConfirmPorteria" onclick="confirmPorteria()">
+      🏫 Confirmar — Lo dejo en portería
+    </button>
+    <p class="error-msg" id="porteriaError"></p>
+  </div>
+
+  <!-- Already confirmed -->
+  <div id="viewDone" style="display:none">
+    <p style="color:#555;margin-bottom:8px">Tu elección ya ha sido registrada. ¡Gracias!</p>
+    <p style="color:var(--muted);font-size:.9rem">Deine Wahl wurde bereits gespeichert. Danke!</p>
+  </div>
+
+  <!-- Error -->
+  <div id="viewError" style="display:none">
+    <p style="color:var(--red)" id="errorText">Ha ocurrido un error.</p>
+  </div>
+</div>
+
+<script>
+  const params  = new URLSearchParams(window.location.search);
+  const loanId  = params.get('loan');
+  const method  = params.get('method');
+
+  // Fake game name — we'll fetch it
+  async function init() {
+    if (!loanId || !method) { showError('Enlace inválido.'); return; }
+
+    // Fetch loan info to show game name
+    try {
+      const res = await fetch(`/api/confirm-return`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ loan_id: loanId, method, _check_only: true })
+      });
+      const data = await res.json();
+      if (data.already_confirmed) { document.getElementById('viewDone').style.display = ''; return; }
+      if (data.game_name) {
+        document.getElementById('gameNameSesion').textContent   = data.game_name;
+        document.getElementById('gameNamePorteria').textContent = data.game_name;
+      }
+      if (data.session_date) window._sessionDate = data.session_date;
+    } catch(e) {}
+
+    if (method === 'sesion') {
+      // Auto-confirm immediately
+      autoConfirmSesion();
+    } else if (method === 'porteria') {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('returnDate').min = today;
+      if (window._sessionDate) document.getElementById('returnDate').max = window._sessionDate;
+      document.getElementById('viewPorteria').style.display = '';
+    } else {
+      showError('Método no reconocido.');
+    }
+  }
+
+  async function autoConfirmSesion() {
+    const res  = await fetch('/api/confirm-return', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ loan_id: loanId, method: 'sesion' })
+    });
+    const data = await res.json();
+    document.getElementById('cardIcon').textContent     = '✅';
+    document.getElementById('cardTitle').textContent    = '¡Gracias!';
+    document.getElementById('cardSubtitle').textContent = 'Danke!';
+    document.getElementById('viewSesion').style.display = 'none';
+    document.getElementById('viewDone').innerHTML =
+      '<p style="color:#059669;font-weight:800;font-size:1.1rem">¡Nos vemos en la sesión! 🎲</p>' +
+      '<p style="color:var(--muted);font-size:.9rem;margin-top:6px">Wir sehen uns bei der Sitzung!</p>';
+    document.getElementById('viewDone').style.display = '';
+  }
+
+  async function confirmSesion() {
+    const btn = document.getElementById('btnConfirmSesion');
+    btn.disabled = true; btn.innerHTML = '<span class="loader"></span>';
+    const res  = await fetch('/api/confirm-return', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ loan_id: loanId, method: 'sesion' })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById('cardIcon').textContent    = '✅';
+      document.getElementById('cardTitle').textContent   = '¡Confirmado!';
+      document.getElementById('cardSubtitle').textContent = 'Bestätigt!';
+      document.getElementById('viewSesion').style.display = 'none';
+      document.getElementById('viewDone').style.display   = '';
+    } else {
+      btn.disabled = false; btn.innerHTML = '✅ Confirmar — Lo traeré a la sesión';
+      showError(data.error || 'Error al confirmar.');
+    }
+  }
+
+  async function confirmPorteria() {
+    const name = document.getElementById('returnName').value.trim();
+    const date = document.getElementById('returnDate').value;
+    const err  = document.getElementById('porteriaError');
+    err.textContent = '';
+    if (!name) { err.textContent = 'Introduce tu nombre.'; return; }
+    if (!date) { err.textContent = 'Selecciona un día.'; return; }
+
+    const btn = document.getElementById('btnConfirmPorteria');
+    btn.disabled = true; btn.innerHTML = '<span class="loader"></span>';
+    const res  = await fetch('/api/confirm-return', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ loan_id: loanId, method: 'porteria', return_name: name, return_date: date })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById('cardIcon').textContent      = '🏫';
+      document.getElementById('cardTitle').textContent     = '¡Confirmado!';
+      document.getElementById('cardSubtitle').textContent  = 'Bestätigt!';
+      document.getElementById('viewPorteria').style.display = 'none';
+      document.getElementById('viewDone').style.display    = '';
+    } else {
+      btn.disabled = false; btn.innerHTML = '🏫 Confirmar — Lo dejo en portería';
+      err.textContent = data.error || 'Error al confirmar.';
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById('errorText').textContent = msg;
+    document.getElementById('viewError').style.display = '';
+  }
+
+  init();
+</script>
+</body>
+</html>
