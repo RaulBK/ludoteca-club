@@ -165,52 +165,60 @@ export default async (req, context) => {
     <p>Hola,</p>
     <p>Tienes prestado <strong>"${gameName}"</strong> (${gameLocation}). Por favor, elige cómo quieres devolverlo:</p>
 
-    <div style="display:flex;flex-direction:column;gap:12px;margin:20px 0">
-      <div style="border:2px solid #06D6A0;border-radius:12px;padding:16px 20px">
-        <strong>📅 Opción 1 — Próxima sesión</strong>
-        <p style="color:#555;margin:6px 0 12px;font-size:.9rem">
-          Tráelo el <strong>${sessionDateEs}</strong> de ${timeStr} en ${locationEs}.
-        </p>
-        <a href="${btnSesion}" style="background:#06D6A0;color:#fff;padding:10px 22px;border-radius:40px;text-decoration:none;font-weight:700;font-size:.9rem;display:inline-block">
-          ✅ Lo traeré a la sesión
-        </a>
-      </div>
-      <div style="border:2px solid #7C3AED;border-radius:12px;padding:16px 20px">
-        <strong>🏫 Opción 2 — Portería del colegio</strong>
-        <p style="color:#555;margin:6px 0 12px;font-size:.9rem">
-          Déjalo en portería antes del ${sessionDateEs}. Indica tu nombre y el día.
-        </p>
-        <a href="${btnPorteria}" style="background:#7C3AED;color:#fff;padding:10px 22px;border-radius:40px;text-decoration:none;font-weight:700;font-size:.9rem;display:inline-block">
-          🏫 Lo dejo en portería
-        </a>
-      </div>
-    </div>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0">
+      <tr><td style="padding-bottom:12px">
+        <div style="border:2px solid #06D6A0;border-radius:12px;padding:16px 20px">
+          <strong>📅 Opción 1 — Próxima sesión</strong>
+          <p style="color:#555;margin:6px 0 12px;font-size:.9rem">
+            Tráelo el <strong>${sessionDateEs}</strong> de ${timeStr} en ${locationEs}.
+          </p>
+          <a href="${btnSesion}" style="background:#06D6A0;color:#fff;padding:12px 24px;border-radius:40px;text-decoration:none;font-weight:700;font-size:.95rem;display:block;text-align:center">
+            ✅ Lo traeré a la sesión
+          </a>
+        </div>
+      </td></tr>
+      <tr><td>
+        <div style="border:2px solid #7C3AED;border-radius:12px;padding:16px 20px">
+          <strong>🏫 Opción 2 — Portería del colegio</strong>
+          <p style="color:#555;margin:6px 0 12px;font-size:.9rem">
+            Déjalo en portería antes del ${sessionDateEs}. Indica tu nombre y el día.
+          </p>
+          <a href="${btnPorteria}" style="background:#7C3AED;color:#fff;padding:12px 24px;border-radius:40px;text-decoration:none;font-weight:700;font-size:.95rem;display:block;text-align:center">
+            🏫 Lo dejo en portería
+          </a>
+        </div>
+      </td></tr>
+    </table>
 
     <hr style="border:none;border-top:2px dashed #E2EAF4;margin:24px 0">
 
     <p>Hallo,</p>
     <p>Du hast <strong>"${gameName}"</strong> (${gameLocation}) ausgeliehen. Bitte wähle, wie du es zurückbringen möchtest:</p>
 
-    <div style="display:flex;flex-direction:column;gap:12px;margin:20px 0">
-      <div style="border:2px solid #06D6A0;border-radius:12px;padding:16px 20px">
-        <strong>📅 Option 1 — Nächste Sitzung</strong>
-        <p style="color:#555;margin:6px 0 12px;font-size:.9rem">
-          Bring es am <strong>${sessionDateDe}</strong>, ${timeStr} in ${locationDe} mit.
-        </p>
-        <a href="${btnSesion}" style="background:#06D6A0;color:#fff;padding:10px 22px;border-radius:40px;text-decoration:none;font-weight:700;font-size:.9rem;display:inline-block">
-          ✅ Ich bringe es zur Sitzung
-        </a>
-      </div>
-      <div style="border:2px solid #7C3AED;border-radius:12px;padding:16px 20px">
-        <strong>🏫 Option 2 — Schulpforte</strong>
-        <p style="color:#555;margin:6px 0 12px;font-size:.9rem">
-          Gib es vor dem ${sessionDateDe} an der Schulpforte ab. Bitte Name und Tag angeben.
-        </p>
-        <a href="${btnPorteria}" style="background:#7C3AED;color:#fff;padding:10px 22px;border-radius:40px;text-decoration:none;font-weight:700;font-size:.9rem;display:inline-block">
-          🏫 Ich gebe es an der Pforte ab
-        </a>
-      </div>
-    </div>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0">
+      <tr><td style="padding-bottom:12px">
+        <div style="border:2px solid #06D6A0;border-radius:12px;padding:16px 20px">
+          <strong>📅 Option 1 — Nächste Sitzung</strong>
+          <p style="color:#555;margin:6px 0 12px;font-size:.9rem">
+            Bring es am <strong>${sessionDateDe}</strong>, ${timeStr} in ${locationDe} mit.
+          </p>
+          <a href="${btnSesion}" style="background:#06D6A0;color:#fff;padding:12px 24px;border-radius:40px;text-decoration:none;font-weight:700;font-size:.95rem;display:block;text-align:center">
+            ✅ Ich bringe es zur Sitzung
+          </a>
+        </div>
+      </td></tr>
+      <tr><td>
+        <div style="border:2px solid #7C3AED;border-radius:12px;padding:16px 20px">
+          <strong>🏫 Option 2 — Schulpforte</strong>
+          <p style="color:#555;margin:6px 0 12px;font-size:.9rem">
+            Gib es vor dem ${sessionDateDe} an der Schulpforte ab. Bitte Name und Tag angeben.
+          </p>
+          <a href="${btnPorteria}" style="background:#7C3AED;color:#fff;padding:12px 24px;border-radius:40px;text-decoration:none;font-weight:700;font-size:.95rem;display:block;text-align:center">
+            🏫 Ich gebe es an der Pforte ab
+          </a>
+        </div>
+      </td></tr>
+    </table>
   </div>
   <div style="background:#F4F7FB;padding:14px 24px;border-radius:0 0 16px 16px;text-align:center;font-size:.8rem;color:#888">
     Club de Juegos · Familien-Spieleclub
