@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Familien-Spieleclub · Brettspiele für die ganze Familie</title>
+  <title>Spieleclub · Brettspiele für Kinder, Jugendliche und Familien</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
@@ -119,6 +119,16 @@
     .rules-list { display: flex; flex-direction: column; gap: 14px; }
     .rule-row { display: flex; gap: 16px; align-items: flex-start; background: var(--bg); border-radius: 12px; padding: 16px 20px; border: 2px solid var(--border); font-size: .93rem; line-height: 1.6; color: var(--text); }
     .rule-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── QUIÉN PUEDE VENIR ── */
+    .age-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .age-card { border-radius: var(--radius); padding: 30px 28px; color: #fff; position: relative; overflow: hidden; }
+    .age-card.kids { background: linear-gradient(135deg, var(--green), var(--blue)); }
+    .age-card.teens { background: linear-gradient(135deg, var(--purple), var(--red)); }
+    .age-tag { display: inline-block; background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.35); border-radius: 30px; padding: 4px 14px; font-size: .78rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 14px; }
+    .age-card h3 { font-family: 'Fredoka One', cursive; font-size: 1.5rem; margin-bottom: 10px; line-height: 1.2; }
+    .age-card p { font-size: .95rem; line-height: 1.65; color: rgba(255,255,255,.92); }
+    .age-emoji { position: absolute; right: 14px; bottom: -8px; font-size: 5rem; opacity: .18; }
     .reveal { opacity: 0; transform: translateY(28px); transition: opacity .55s ease, transform .55s ease; }
     .reveal.visible { opacity: 1; transform: none; }
 
@@ -134,9 +144,10 @@
 <header>
   <img src="/logo.png" alt="Familien-Spieleclub" class="hero-logo"/>
   <h1>🎲 Familien-Spieleclub</h1>
-  <p>Spielenachmittage für Familien an der Schule</p>
+  <p>Moderne Brettspiele für Kinder, Jugendliche und Familien. Komm mit deiner Familie oder mit deinen Freunden.</p>
   <div class="hero-badges">
-    <span class="badge">👨‍👩‍👧 Für die ganze Familie</span>
+    <span class="badge">👨‍👩‍👧 Mit der Familie</span>
+    <span class="badge">🧑‍🤝‍🧑 Mit Freunden ab 13</span>
     <span class="badge">🏫 die Schule</span>
     <span class="badge">🎯 70+ Spiele</span>
   </div>
@@ -157,12 +168,12 @@
       <div class="obj-card reveal">
         <div class="obj-icon">🎲</div>
         <h3>Moderne Brettspiele</h3>
-        <p>Wir möchten den Familien der Schule die Welt der modernen Brettspiele näherbringen — ein riesiges, kreatives Universum, das weit über klassische Spiele hinausgeht.</p>
+        <p>Wir möchten der ganzen Schulgemeinschaft die Welt der modernen Brettspiele näherbringen — ein riesiges, kreatives Universum, das weit über klassische Spiele hinausgeht.</p>
       </div>
       <div class="obj-card reveal">
-        <div class="obj-icon">👨‍👩‍👧</div>
-        <h3>Familienzeit</h3>
-        <p>Brettspiele sind eine bereichernde Freizeitaktivität. Sie fördern Kommunikation, Zusammenhalt und gemeinsame Freude zwischen Eltern und Kindern.</p>
+        <div class="obj-icon">🤝</div>
+        <h3>Schöne Zeit zusammen</h3>
+        <p>Ob mit der Familie oder mit Freunden: Brettspiele fördern Kommunikation, Zusammenhalt und viel Lachen. Ein etwas anderer Samstag.</p>
       </div>
       <div class="obj-card reveal">
         <div class="obj-icon">🧠</div>
@@ -172,7 +183,31 @@
       <div class="obj-card reveal">
         <div class="obj-icon">📵</div>
         <h3>Alternative zu Bildschirmen</h3>
-        <p>Für ältere Kinder eine perfekte Gelegenheit, das Handy wegzulegen und sich mit anderen Familien mit gemeinsamen Interessen zu verbinden.</p>
+        <p>Die perfekte Gelegenheit, das Handy wegzulegen und Menschen mit gleichen Interessen zu treffen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FÜR WEN ── -->
+<section>
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Für wen</div>
+      <h2 class="section-title">Wer kann <em>kommen</em>?</h2>
+    </div>
+    <div class="age-grid">
+      <div class="age-card kids reveal">
+        <span class="age-tag">Bis 12 Jahre</span>
+        <h3>Kleine: mit der Familie</h3>
+        <p>Die Jüngeren kommen mit Mama, Papa oder einem Erwachsenen aus der Familie. Gemeinsam neue Spiele lernen und zusammen lachen.</p>
+        <span class="age-emoji">👨‍👩‍👧</span>
+      </div>
+      <div class="age-card teens reveal">
+        <span class="age-tag">Ab 13 Jahren</span>
+        <h3>Jugendliche: selbstbestimmt</h3>
+        <p>Ab 13 Jahren dürft ihr allein oder mit euren Freunden kommen. Sucht euch einen Tisch, probiert Strategie-, Karten- und Koop-Spiele... und fordert heraus, wen ihr wollt!</p>
+        <span class="age-emoji">🧑‍🤝‍🧑</span>
       </div>
     </div>
   </div>
@@ -194,12 +229,12 @@
       <div class="step-card reveal" data-num="02">
         <div class="step-icon">🎲</div>
         <h3>Gemeinsam spielen</h3>
-        <p>In der Schulcafeteria, mit den Club-Spielen oder denen, die ihr von zu Hause mitbringt. Entspannte, familiäre Atmosphäre!</p>
+        <p>In der Schulcafeteria, mit den Club-Spielen oder denen, die ihr von zu Hause mitbringt. Entspannte Atmosphäre und viel Spaß!</p>
       </div>
       <div class="step-card reveal" data-num="03">
         <div class="step-icon">🏠</div>
         <h3>Ausleihe nach Hause</h3>
-        <p>Habt ihr ein Spiel gefunden, das euch begeistert? Ihr könnt es mit nach Hause nehmen, um als Familie weiterzuspielen.</p>
+        <p>Habt ihr ein Spiel gefunden, das euch begeistert? Ihr könnt es mit nach Hause nehmen, um zu Hause weiterzuspielen.</p>
       </div>
     </div>
   </div>
@@ -216,7 +251,7 @@
       <div class="location-pin">📍</div>
       <div style="flex:1;min-width:200px">
         <h3>Cafeteria der Schule</h3>
-        <p>Wir treffen uns in der Schulcafeteria. Ein großzügiger, gemütlicher Raum — perfekt zum gemeinsamen Spielen.</p>
+        <p>Wir treffen uns in der Schulcafeteria. Ein großzügiger, gemütlicher Raum — perfekt zum Spielen.</p>
       </div>
     </div>
   </div>
@@ -240,6 +275,10 @@
       </div>
       <div class="rule-row">
         <span class="rule-icon">🧩</span>
+        <div><strong>Unter 13 Jahren immer mit Erwachsenen.</strong> Die Jüngeren kommen in Begleitung eines Erwachsenen aus der Familie. Ab 13 Jahren dürft ihr allein oder mit Freunden kommen.</div>
+      </div>
+      <div class="rule-row">
+        <span class="rule-icon">👨‍👩‍👧</span>
         <div><strong>Spiele pflegen.</strong> Bitte am Ende alle Spielteile einsammeln und in die Schachtel legen. Die Spiele gehören uns allen!</div>
       </div>
     </div>
@@ -262,7 +301,7 @@
   <div class="container reveal">
     <div class="section-label">Unsere Spiele</div>
     <h2 class="section-title">Entdecke den <em>Katalog</em></h2>
-    <p>Mehr als 70 Brettspiele für alle Geschmäcker und Altersgruppen — von klassischen Familienspielen bis hin zu modernen Strategietiteln.</p>
+    <p>Mehr als 70 Brettspiele für alle Geschmäcker und Altersgruppen — von schnellen Spielen für Kleine bis zu Strategietiteln für Jugendliche und Erwachsene.</p>
     <a href="/de/" class="btn-catalog">🎲 Zum vollständigen Katalog</a>
   </div>
 </section>

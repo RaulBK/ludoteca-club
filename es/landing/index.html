@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Club de Juegos · Juegos de mesa en familia</title>
+  <title>Club de Juegos · Juegos de mesa para peques, jóvenes y familias</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
@@ -125,6 +125,16 @@
     .rules-list { display: flex; flex-direction: column; gap: 14px; }
     .rule-row { display: flex; gap: 16px; align-items: flex-start; background: var(--bg); border-radius: 12px; padding: 16px 20px; border: 2px solid var(--border); font-size: .93rem; line-height: 1.6; color: var(--text); }
     .rule-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── QUIÉN PUEDE VENIR ── */
+    .age-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .age-card { border-radius: var(--radius); padding: 30px 28px; color: #fff; position: relative; overflow: hidden; }
+    .age-card.kids { background: linear-gradient(135deg, var(--green), var(--blue)); }
+    .age-card.teens { background: linear-gradient(135deg, var(--purple), var(--red)); }
+    .age-tag { display: inline-block; background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.35); border-radius: 30px; padding: 4px 14px; font-size: .78rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 14px; }
+    .age-card h3 { font-family: 'Fredoka One', cursive; font-size: 1.5rem; margin-bottom: 10px; line-height: 1.2; }
+    .age-card p { font-size: .95rem; line-height: 1.65; color: rgba(255,255,255,.92); }
+    .age-emoji { position: absolute; right: 14px; bottom: -8px; font-size: 5rem; opacity: .18; }
     .reveal { opacity: 0; transform: translateY(28px); transition: opacity .55s ease, transform .55s ease; }
     .reveal.visible { opacity: 1; transform: none; }
 
@@ -140,9 +150,10 @@
 <header>
   <img src="/logo.png" alt="Club de Juegos" class="hero-logo"/>
   <h1>🎲 Club de Juegos</h1>
-  <p>Sábados de juegos de mesa en familia en el colegio</p>
+  <p>Juegos de mesa modernos para peques, jóvenes y familias. Ven con tu familia o con tus amigos.</p>
   <div class="hero-badges">
-    <span class="badge">👨‍👩‍👧 Para toda la familia</span>
+    <span class="badge">👨‍👩‍👧 En familia</span>
+    <span class="badge">🧑‍🤝‍🧑 Con amigos desde los 13</span>
     <span class="badge">🏫 el colegio</span>
     <span class="badge">🎯 +70 juegos</span>
   </div>
@@ -163,12 +174,12 @@
       <div class="obj-card reveal">
         <div class="obj-icon">🎲</div>
         <h3>Juegos de mesa modernos</h3>
-        <p>Queremos acercar a las familias del colegio al mundo de los juegos de mesa modernos — un universo enorme, creativo y muy diferente al Parchís de toda la vida.</p>
+        <p>Queremos acercar a toda la comunidad del colegio al mundo de los juegos de mesa modernos — un universo enorme, creativo y muy diferente al Parchís de toda la vida.</p>
       </div>
       <div class="obj-card reveal">
-        <div class="obj-icon">👨‍👩‍👧</div>
-        <h3>Tiempo en familia</h3>
-        <p>Los juegos de mesa son una actividad enriquecedora para el tiempo libre. Favorecen la comunicación, la complicidad y los buenos ratos entre padres e hijos.</p>
+        <div class="obj-icon">🤝</div>
+        <h3>Buenos ratos juntos</h3>
+        <p>En familia o con amigos, los juegos de mesa favorecen la comunicación, la complicidad y las risas. Un plan distinto para el sábado.</p>
       </div>
       <div class="obj-card reveal">
         <div class="obj-icon">🧠</div>
@@ -178,7 +189,31 @@
       <div class="obj-card reveal">
         <div class="obj-icon">📵</div>
         <h3>Alternativa a las pantallas</h3>
-        <p>Para los más mayores, una excusa perfecta para desconectar del móvil y conectar con otras familias que comparten los mismos intereses.</p>
+        <p>Una excusa perfecta para desconectar del móvil y conectar con otras personas que comparten tus mismos intereses.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PARA QUIÉN ── -->
+<section>
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Para quién</div>
+      <h2 class="section-title">¿Quién puede <em>venir</em>?</h2>
+    </div>
+    <div class="age-grid">
+      <div class="age-card kids reveal">
+        <span class="age-tag">Hasta 12 años</span>
+        <h3>Peques: en familia</h3>
+        <p>Los más pequeños vienen con su madre, su padre o un adulto de la familia. Un plan para compartir, aprender juegos nuevos y echar unas risas juntos.</p>
+        <span class="age-emoji">👨‍👩‍👧</span>
+      </div>
+      <div class="age-card teens reveal">
+        <span class="age-tag">Desde 13 años</span>
+        <h3>Jóvenes: a su aire</h3>
+        <p>A partir de 13 años podéis venir solos o con vuestros amigos. Elegid mesa, probad juegos de estrategia, cartas y cooperativos... ¡y retad a quien queráis!</p>
+        <span class="age-emoji">🧑‍🤝‍🧑</span>
       </div>
     </div>
   </div>
@@ -200,12 +235,12 @@
       <div class="step-card reveal" data-num="02">
         <div class="step-icon">🎲</div>
         <h3>Jugamos juntos</h3>
-        <p>En la cafetería del colegio, con los juegos del club o los que queráis traer de casa. ¡Ambiente relajado y familiar!</p>
+        <p>En la cafetería del colegio, con los juegos del club o los que queráis traer de casa. ¡Ambiente relajado y mucha diversión!</p>
       </div>
       <div class="step-card reveal" data-num="03">
         <div class="step-icon">🏠</div>
         <h3>Préstamo a domicilio</h3>
-        <p>¿Encontrasteis un juego que os encantó? Podéis llevarlo prestado a casa para seguir jugando en familia.</p>
+        <p>¿Encontrasteis un juego que os encantó? Podéis llevarlo prestado a casa para seguir jugando en casa.</p>
       </div>
     </div>
   </div>
@@ -222,7 +257,7 @@
       <div class="location-pin">📍</div>
       <div style="flex:1;min-width:200px">
         <h3>Cafetería del colegio</h3>
-        <p>Nos encontramos en la cafetería del colegio. Es un espacio amplio, cómodo y perfecto para jugar en familia.</p>
+        <p>Nos encontramos en la cafetería del colegio. Es un espacio amplio, cómodo y perfecto para jugar.</p>
       </div>
     </div>
   </div>
@@ -246,6 +281,10 @@
       </div>
       <div class="rule-row">
         <span class="rule-icon">🧩</span>
+        <div><strong>Menores de 13 años, siempre con un adulto.</strong> Los más jóvenes vienen acompañados por un adulto de su familia. A partir de 13 años pueden venir solos o con amigos.</div>
+      </div>
+      <div class="rule-row">
+        <span class="rule-icon">👨‍👩‍👧</span>
         <div><strong>Cuidar los juegos.</strong> Al terminar, aseguraos de recoger todos los componentes y dejarlos en su caja. ¡Son de todos!</div>
       </div>
     </div>
@@ -268,7 +307,7 @@
   <div class="container reveal">
     <div class="section-label">Nuestros juegos</div>
     <h2 class="section-title">Descubre el <em>catálogo</em></h2>
-    <p>Más de 70 juegos de mesa para todos los gustos y edades — desde clásicos familiares hasta títulos modernos de estrategia.</p>
+    <p>Más de 70 juegos de mesa para todos los gustos y edades — desde juegos rápidos para peques hasta títulos de estrategia para jóvenes y adultos.</p>
     <a href="/es/" class="btn-catalog">🎲 Ver catálogo completo</a>
   </div>
 </section>
