@@ -46,7 +46,6 @@ Hemos recibido vuestra inscripción para la sesión del Club de Juegos. ¡Nos ve
 📅 Fecha: ${sessionDate}
 🕐 Horario: ${timeStart} – ${timeEnd} h
 📍 Lugar: ${locationEs}
-💶 Donativo: 5 € por grupo
 👥 Grupo: ${numAdults} adulto${numAdults>1?'s':''} + ${numChildren} niño${numChildren>1?'s':''}
 ${gradesText ? `🎒 Cursos: ${gradesText}` : ''}${gameText}
 
@@ -61,7 +60,6 @@ wir haben eure Anmeldung für die Sitzung des Familien-Spieleclubs erhalten. Wir
 📅 Datum: ${sessionDateDe}
 🕐 Zeit: ${timeStart} – ${timeEnd} Uhr
 📍 Ort: ${locationDe}
-💶 Spende: 5 € pro Gruppe
 👥 Gruppe: ${numAdults} Erwachsene${numAdults>1?'r':''} + ${numChildren} Kind${numChildren>1?'er':''}
 ${gradesText ? `🎒 Klassen: ${gradesText}` : ''}${gameText}
 
@@ -87,7 +85,6 @@ Club de Juegos · die Schule`;
       <div style="margin-bottom:10px">📅 <strong>${sessionDate}</strong></div>
       <div style="margin-bottom:10px">🕐 <strong>${timeStart} – ${timeEnd} h</strong></div>
       <div style="margin-bottom:10px">📍 <strong>${locationEs}</strong></div>
-      <div style="margin-bottom:10px">💶 <strong>5 € por grupo</strong></div>
       <div style="margin-bottom:${gradesText?'10px':'0'}">👥 <strong>${numAdults} adulto${numAdults>1?'s':''} + ${numChildren} niño${numChildren>1?'s':''}</strong></div>
       ${gradesText ? `<div>🎒 <strong>Cursos: ${gradesText}</strong></div>` : ''}
       ${preferredGame ? `<div style="margin-top:10px">🎲 <strong>Juego preferido: ${preferredGame}</strong></div>` : ''}
@@ -102,7 +99,6 @@ Club de Juegos · die Schule`;
       <div style="margin-bottom:10px">📅 <strong>${sessionDateDe}</strong></div>
       <div style="margin-bottom:10px">🕐 <strong>${timeStart} – ${timeEnd} Uhr</strong></div>
       <div style="margin-bottom:10px">📍 <strong>${locationDe}</strong></div>
-      <div style="margin-bottom:10px">💶 <strong>5 € pro Gruppe</strong></div>
       <div style="margin-bottom:${gradesText?'10px':'0'}">👥 <strong>${numAdults} Erwachsene${numAdults>1?'r':''} + ${numChildren} Kind${numChildren>1?'er':''}</strong></div>
       ${gradesText ? `<div>🎒 <strong>Klassen: ${gradesText}</strong></div>` : ''}
       ${preferredGame ? `<div style="margin-top:10px">🎲 <strong>Wunschspiel: ${preferredGame}</strong></div>` : ''}

@@ -45,7 +45,6 @@ Os recordamos que la próxima sesión del Club de Juegos es:
 📅 Fecha: ${sessionDate}
 🕐 Horario: ${timeStart} – ${timeEnd} h
 📍 Lugar: ${locationEs}
-💶 Donativo: 5 € por grupo (destinado a la compra de juegos para el colegio)
 
 🎲 Consulta nuestro catálogo de juegos:
 https://ludoteca-dsm.netlify.app/
@@ -59,7 +58,6 @@ wir möchten euch an die nächste Sitzung des Familien-Spieleclubs erinnern:
 📅 Datum: ${dateDe}
 🕐 Zeit: ${timeStart} – ${timeEnd} Uhr
 📍 Ort: ${locationDe}
-💶 Spende: 5 € pro Gruppe (für den Kauf von Spielen für die Schule)
 
 🎲 Unseren Spielekatalog findet ihr hier:
 https://ludoteca-dsm.netlify.app/
@@ -84,7 +82,6 @@ Club de Juegos`;
       <div style="margin-bottom:10px">📅 <strong>${sessionDate}</strong></div>
       <div style="margin-bottom:10px">🕐 <strong>${timeStart} – ${timeEnd} h</strong></div>
       <div style="margin-bottom:10px">📍 <strong>${locationEs}</strong></div>
-      <div>💶 <strong>5 € por grupo</strong> (destinado a la compra de juegos para el colegio)</div>
     </div>
 
     <div style="border-top:2px dashed #E2EAF4;margin:24px 0"></div>
@@ -96,7 +93,6 @@ Club de Juegos`;
       <div style="margin-bottom:10px">📅 <strong>${dateDe}</strong></div>
       <div style="margin-bottom:10px">🕐 <strong>${timeStart} – ${timeEnd} Uhr</strong></div>
       <div style="margin-bottom:10px">📍 <strong>${locationDe}</strong></div>
-      <div>💶 <strong>5 € pro Gruppe</strong> (für den Kauf von Spielen für die Schule)</div>
     </div>
 
     <div style="text-align:center;margin:24px 0">
