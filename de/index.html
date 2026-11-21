@@ -515,6 +515,7 @@
       <label class="filter-label">↕️ Sortieren</label>
       <select class="filter-select" id="filterSort" onchange="applyFilters()">
         <option value="name">Name A–Z</option>
+        <option value="plays">Meistgespielt</option>
         <option value="rating">Beste Bewertung</option>
         <option value="rank">BGG-Ranking</option>
         <option value="age">Mindestalter</option>
@@ -580,8 +581,9 @@
       rawGames.forEach(g => {
         const key = g.bgg_id ? `bgg_${g.bgg_id}` : `id_${g.id}`;
         if (!grouped[key]) {
-          grouped[key] = { ...g, locations: [] };
+          grouped[key] = { ...g, locations: [], play_count: 0 };
         }
+        grouped[key].play_count += (g.play_count || 0);
         grouped[key].locations.push({ id: g.id, location: g.location, units: g.units || 1 });
       });
       allGames = Object.values(grouped);
@@ -616,7 +618,8 @@
       return true;
     });
 
-    if (sort==='rating') list.sort((a,b)=>(b.rating||0)-(a.rating||0));
+    if (sort==='plays') list.sort((a,b)=>(b.play_count||0)-(a.play_count||0) || getName(a).localeCompare(getName(b)));
+    else if (sort==='rating') list.sort((a,b)=>(b.rating||0)-(a.rating||0));
     else if (sort==='rank') list.sort((a,b)=>(a.bgg_rank||99999)-(b.bgg_rank||99999));
     else if (sort==='age') list.sort((a,b)=>(a.min_age||0)-(b.min_age||0));
     else list.sort((a,b)=>getName(a).localeCompare(getName(b)));
