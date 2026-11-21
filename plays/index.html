@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎯 Partidas — Club de Juegos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red:    #FF4D6D;
+      --yellow: #FFD166;
+      --green:  #06D6A0;
+      --blue:   #118AB2;
+      --purple: #845EC2;
+      --orange: #FF9A3C;
+      --bg:     #F4F7FB;
+      --card:   #FFFFFF;
+      --text:   #2D2D2D;
+      --muted:  #888;
+      --border: #E2EAF4;
+      --radius: 16px;
+      --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); }
+
+    .topbar {
+      background: linear-gradient(135deg, var(--green), var(--blue));
+      color: #fff; padding: 16px 24px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar img { height: 36px; width: 36px; object-fit: contain; background: #fff; border-radius: 8px; padding: 3px; }
+    .topbar h1 { font-family: 'Fredoka One', cursive; font-size: 1.4rem; }
+    .topbar-links { display: flex; gap: 18px; }
+    .topbar a { color: rgba(255,255,255,.88); text-decoration: none; font-weight: 700; font-size: .9rem; }
+    .topbar a:hover { color: #fff; }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 20px 16px 80px; }
+
+    .field-label { font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .session-select, .search-input {
+      width: 100%; border: 2.5px solid var(--border); border-radius: 14px; background: #fff;
+      font-family: 'Nunito', sans-serif; font-weight: 700; color: var(--text); outline: none;
+      transition: border-color .2s;
+    }
+    .session-select { padding: 13px 14px; font-size: 1rem; margin-bottom: 18px; }
+    .search-input { padding: 16px 18px; font-size: 1.2rem; margin-bottom: 14px; }
+    .session-select:focus, .search-input:focus { border-color: var(--blue); }
+
+    .counter {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 14px 18px; margin-bottom: 18px;
+    }
+    .counter .big { font-family: 'Fredoka One', cursive; font-size: 2rem; color: var(--green); line-height: 1; }
+    .counter .txt { font-weight: 800; font-size: .95rem; }
+    .counter .sub { font-size: .8rem; color: var(--muted); font-weight: 600; }
+
+    .section-title { font-size: .8rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 22px 0 10px; }
+
+    .game-row {
+      display: flex; align-items: center; gap: 14px; background: var(--card);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding: 12px 14px; margin-bottom: 10px;
+    }
+    .game-thumb { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; background: var(--border); flex-shrink: 0; }
+    .game-thumb.ph { display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+    .game-info { flex: 1; min-width: 0; }
+    .game-name { font-weight: 800; font-size: 1.05rem; line-height: 1.2; overflow-wrap: anywhere; }
+    .game-meta { font-size: .8rem; color: var(--muted); font-weight: 600; margin-top: 3px; }
+    .badge-today { display: inline-block; background: #E6FBF5; color: #04A87E; border-radius: 20px; padding: 1px 10px; font-weight: 800; font-size: .78rem; margin-left: 6px; }
+    .btn-play {
+      background: var(--green); color: #fff; border: none; border-radius: 40px;
+      padding: 16px 22px; min-width: 128px; font-family: 'Fredoka One', cursive; font-size: 1.1rem;
+      cursor: pointer; box-shadow: 0 4px 14px rgba(6,214,160,.35); transition: transform .1s, background .2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-play:active { transform: scale(.94); }
+    .btn-play:disabled { background: #b8c4d0; box-shadow: none; cursor: default; }
+
+    .play-item { display: flex; align-items: center; gap: 10px; padding: 11px 14px; background: var(--card); border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--border); }
+    .play-item .pname { flex: 1; font-weight: 700; overflow-wrap: anywhere; }
+    .play-item .ptime { color: var(--muted); font-size: .82rem; font-weight: 700; }
+    .btn-del { background: none; border: none; color: var(--red); font-size: 1.2rem; font-weight: 800; cursor: pointer; padding: 6px 10px; border-radius: 8px; }
+    .btn-del:hover { background: #FFF0F3; }
+    .empty { color: var(--muted); text-align: center; padding: 22px 10px; font-weight: 600; }
+
+    .toast {
+      position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 120px); opacity: 0;
+      background: #2D2D2D; color: #fff; padding: 12px 14px 12px 18px; border-radius: 40px; font-weight: 700;
+      transition: all .3s; z-index: 2000; display: flex; align-items: center; gap: 14px; max-width: calc(100vw - 24px);
+    }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+    .toast.error { background: var(--red); }
+    .toast button { background: rgba(255,255,255,.2); border: none; color: #fff; font-weight: 800; border-radius: 20px; padding: 7px 14px; cursor: pointer; font-family: inherit; }
+
+    @media (max-width: 520px) {
+      .topbar { padding: 12px 16px; }
+      .topbar h1 { font-size: 1.15rem; }
+      .btn-play { min-width: 104px; padding: 15px 16px; }
+      .game-thumb { width: 52px; height: 52px; }
+    }
+
+    /* ── AUTH GATE ── */
+    .auth-gate { display: none; position: fixed; inset: 0; z-index: 1000; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); align-items: center; justify-content: center; padding: 24px; }
+    .auth-gate.show { display: flex; }
+    .auth-box { background: #fff; border-radius: 20px; padding: 40px 36px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 24px 80px rgba(0,0,0,.4); }
+    .auth-box img { width: 64px; height: 64px; border-radius: 14px; margin-bottom: 16px; }
+    .auth-box h2 { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: #2D2D2D; margin-bottom: 4px; }
+    .auth-box p  { font-size: .88rem; color: #888; margin-bottom: 24px; }
+    .auth-input { width: 100%; border: 2.5px solid #E2EAF4; border-radius: 12px; padding: 13px 16px; font-family: 'Nunito', sans-serif; font-size: 1.1rem; font-weight: 700; text-align: center; letter-spacing: .2em; outline: none; margin-bottom: 14px; }
+    .auth-input:focus { border-color: #845EC2; }
+    .auth-btn { width: 100%; background: #845EC2; color: #fff; border: none; border-radius: 40px; padding: 13px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; }
+    .auth-btn:disabled { background: #ccc; cursor: not-allowed; }
+    .auth-error { color: #FF4D6D; font-size: .85rem; font-weight: 700; margin-top: 10px; min-height: 20px; }
+  </style>
+</head>
+<body>
+
+<!-- Auth Gate -->
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <img src="/logo.png" alt="Club de Juegos" />
+    <h2>Área privada</h2>
+    <p>Club de Juegos · Acceso restringido</p>
+    <input class="auth-input" type="password" id="authInput" placeholder="Contraseña"
+      autocomplete="current-password" onkeydown="if(event.key==='Enter') checkAuth()" />
+    <button class="auth-btn" id="authBtn" onclick="checkAuth()">🔐 Entrar</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <img src="/logo.png" alt="Logo" />
+    <h1>🎯 Partidas jugadas</h1>
+  </div>
+  <div class="topbar-links">
+    <a href="/">🎲 Catálogo</a>
+    <a href="/admin">⚙️ Admin</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="field-label">Sesión</div>
+  <select class="session-select" id="sessionSelect" onchange="onSessionChange()">
+    <option value="">Cargando sesiones…</option>
+  </select>
+
+  <div class="counter">
+    <div>
+      <div class="txt">Partidas de esta sesión</div>
+      <div class="sub" id="counterSub">&nbsp;</div>
+    </div>
+    <div class="big" id="counterNum">0</div>
+  </div>
+
+  <input class="search-input" id="searchInput" type="search" placeholder="🔍 Buscar juego…"
+    autocomplete="off" autocapitalize="off" spellcheck="false" oninput="renderResults()" />
+  <div id="results"></div>
+
+  <div class="section-title">Partidas apuntadas</div>
+  <div id="playsList"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const SUPABASE_URL = 'https://jenjnkidfdtlcxxvntst.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Implbmpua2lkZmR0bGN4eHZudHN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5Njg1NTQsImV4cCI6MjA4NzU0NDU1NH0.HOkPhe-WRYV1-NB0jeptj0PBvMVbBG5bWs4ZrLJP2b0';
+  const sbH = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
+
+  let groups = [];     // juegos agrupados por bgg_id
+  let sessions = [];
+  let plays = [];      // partidas de la sesión seleccionada
+  let recentKeys = []; // juegos jugados recientemente
+
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const keyOf = (bggId, gameId) => bggId ? `bgg_${bggId}` : `id_${gameId}`;
+  const todayMadrid = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(new Date());
+
+  let toastTimer;
+  function toast(msg, type = 'ok', undoFn) {
+    const t = document.getElementById('toast');
+    t.className = 'toast show' + (type === 'error' ? ' error' : '');
+    t.innerHTML = `<span>${esc(msg)}</span>`;
+    if (undoFn) {
+      const b = document.createElement('button');
+      b.textContent = '↩ Deshacer';
+      b.onclick = () => { clearTimeout(toastTimer); t.classList.remove('show'); undoFn(); };
+      t.appendChild(b);
+    }
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), undoFn ? 6000 : 3200);
+  }
+
+  // ── Carga inicial ──
+  async function loadAll() {
+    try {
+      const [gRes, sRes] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/games?select=id,name_es,name_original,bgg_id,thumbnail_url,image_url,min_players,max_players,playtime&order=name_es.asc`, { headers: sbH }),
+        fetch(`${SUPABASE_URL}/rest/v1/sessions?select=id,date,time_start,time_end&order=date.desc&limit=60`, { headers: sbH })
+      ]);
+      const games = await gRes.json();
+      sessions = await sRes.json();
+      if (!Array.isArray(games) || !Array.isArray(sessions)) throw new Error('respuesta no válida');
+
+      const map = {};
+      games.forEach(g => {
+        const k = keyOf(g.bgg_id, g.id);
+        if (!map[k]) map[k] = { key: k, game_id: g.id, bgg_id: g.bgg_id, name: g.name_es, original: g.name_original, thumb: g.thumbnail_url || g.image_url, min: g.min_players, max: g.max_players, time: g.playtime };
+      });
+      groups = Object.values(map);
+      buildSessionSelect();
+      await loadPlays();
+      renderResults();
+    } catch (e) {
+      toast('No se pudieron cargar los datos', 'error');
+    }
+  }
+
+  // ── Combo de sesiones (por defecto la de hoy) ──
+  const DAYS = ['dom','lun','mar','mié','jue','vie','sáb'];
+  const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  function sessionLabel(s) {
+    const d = new Date(s.date + 'T12:00:00');
+    const hours = s.time_start ? ` · ${s.time_start}${s.time_end ? '–' + s.time_end : ''}` : '';
+    return `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}${hours}`;
+  }
+  function buildSessionSelect() {
+    const sel = document.getElementById('sessionSelect');
+    if (!sessions.length) { sel.innerHTML = '<option value="">No hay sesiones creadas</option>'; return; }
+    const today = todayMadrid();
+    let def = sessions.find(s => s.date === today);
+    if (!def) def = sessions.find(s => s.date < today) || sessions[sessions.length - 1]; // la última pasada
+    sel.innerHTML = sessions.map(s =>
+      `<option value="${s.id}">${esc(sessionLabel(s))}${s.date === today ? ' — HOY' : ''}</option>`).join('');
+    sel.value = String(def.id);
+  }
+  const currentSession = () => sessions.find(s => String(s.id) === document.getElementById('sessionSelect').value);
+
+  async function onSessionChange() { await loadPlays(); renderResults(); }
+
+  // ── Partidas ──
+  async function loadPlays() {
+    const s = currentSession();
+    if (!s) { plays = []; renderPlays(); return; }
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/plays?select=id,game_id,bgg_id,game_name,created_at&session_id=eq.${s.id}&order=created_at.desc`, { headers: sbH });
+    const data = await res.json();
+    plays = Array.isArray(data) ? data : [];
+    renderPlays();
+  }
+
+  async function addPlay(key, btn) {
+    const g = groups.find(x => x.key === key);
+    const s = currentSession();
+    if (!g || !s) { toast('Elige una sesión primero', 'error'); return; }
+    if (btn) { btn.disabled = true; setTimeout(() => { btn.disabled = false; }, 700); }
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/plays`, {
+        method: 'POST', headers: { ...sbH, Prefer: 'return=representation' },
+        body: JSON.stringify({ game_id: g.game_id, bgg_id: g.bgg_id, game_name: g.name, session_id: s.id, played_on: s.date })
+      });
+      const data = await res.json();
+      if (!res.ok || !data[0]) throw new Error('insert');
+      const row = data[0];
+      plays.unshift(row);
+      renderPlays(); renderResults();
+      toast(`✅ ${g.name} apuntada`, 'ok', () => removePlay(row.id));
+    } catch (e) {
+      toast('❌ No se pudo apuntar. Inténtalo otra vez', 'error');
+    }
+  }
+
+  async function removePlay(id) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/plays?id=eq.${id}`, { method: 'DELETE', headers: sbH });
+      if (!res.ok) throw new Error('del');
+      plays = plays.filter(p => p.id !== id);
+      renderPlays(); renderResults();
+    } catch (e) { toast('❌ No se pudo borrar', 'error'); }
+  }
+
+  // ── Pintado ──
+  const playKey = p => keyOf(p.bgg_id, p.game_id);
+  function countFor(key) { return plays.filter(p => playKey(p) === key).length; }
+
+  function rowHTML(g) {
+    const n = countFor(g.key);
+    const meta = [g.min && g.max ? `👥 ${g.min === g.max ? g.min : g.min + '–' + g.max}` : '', g.time ? `⏱ ${g.time} min` : ''].filter(Boolean).join(' · ');
+    const thumb = g.thumb ? `<img class="game-thumb" src="${esc(g.thumb)}" alt="" loading="lazy" />` : `<div class="game-thumb ph">🎲</div>`;
+    return `<div class="game-row">
+      ${thumb}
+      <div class="game-info">
+        <div class="game-name">${esc(g.name)}${n ? `<span class="badge-today">${n}×</span>` : ''}</div>
+        <div class="game-meta">${esc(meta) || '&nbsp;'}</div>
+      </div>
+      <button class="btn-play" onclick="addPlay('${g.key}', this)">＋ Apuntar</button>
+    </div>`;
+  }
+
+  function renderResults() {
+    const q = norm(document.getElementById('searchInput').value.trim());
+    const box = document.getElementById('results');
+    if (!q) {
+      // sin búsqueda: juegos jugados recientemente en esta sesión
+      const seen = []; plays.forEach(p => { const k = playKey(p); if (!seen.includes(k)) seen.push(k); });
+      const list = seen.map(k => groups.find(g => g.key === k)).filter(Boolean).slice(0, 8);
+      box.innerHTML = list.length
+        ? `<div class="section-title" style="margin-top:6px">Jugados en esta sesión</div>` + list.map(rowHTML).join('')
+        : `<div class="empty">Escribe el nombre de un juego para apuntar una partida</div>`;
+      return;
+    }
+    const found = groups.filter(g => norm(g.name).includes(q) || norm(g.original).includes(q)).slice(0, 12);
+    box.innerHTML = found.length ? found.map(rowHTML).join('') : `<div class="empty">Ningún juego coincide con “${esc(q)}”</div>`;
+  }
+
+  function renderPlays() {
+    document.getElementById('counterNum').textContent = plays.length;
+    const distinct = new Set(plays.map(playKey)).size;
+    document.getElementById('counterSub').textContent = plays.length ? `${distinct} juego${distinct === 1 ? '' : 's'} distinto${distinct === 1 ? '' : 's'}` : 'Aún no hay partidas';
+    const list = document.getElementById('playsList');
+    if (!plays.length) { list.innerHTML = '<div class="empty">Todavía no hay partidas en esta sesión</div>'; return; }
+    list.innerHTML = plays.map(p => {
+      const t = new Date(p.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+      return `<div class="play-item"><span class="pname">${esc(p.game_name)}</span><span class="ptime">${t}</span><button class="btn-del" onclick="removePlay(${p.id})" aria-label="Borrar">✕</button></div>`;
+    }).join('');
+  }
+
+  // ── AUTH ──
+  const AUTH_KEY = 'dsm_admin_token';
+  function isValidToken(token) {
+    if (!token) return false;
+    try {
+      const parts = atob(token).split(':');
+      if (parts[0] !== 'dsm-admin') return false;
+      return (Date.now() - parseInt(parts[1])) < 30 * 24 * 60 * 60 * 1000;
+    } catch (e) { return false; }
+  }
+  function initAuth() {
+    const token = localStorage.getItem(AUTH_KEY);
+    if (isValidToken(token)) {
+      document.getElementById('authGate').classList.remove('show');
+      document.body.style.overflow = '';
+      loadAll();
+    } else {
+      localStorage.removeItem(AUTH_KEY);
+      document.getElementById('authGate').classList.add('show');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('authInput').focus(), 400);
+    }
+  }
+  async function checkAuth() {
+    const password = document.getElementById('authInput').value;
+    if (!password) return;
+    const btn = document.getElementById('authBtn');
+    const err = document.getElementById('authError');
+    btn.disabled = true; btn.textContent = '…';
+    err.textContent = '';
+    try {
+      const res  = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
+      const data = await res.json();
+      if (data.ok && data.token) {
+        localStorage.setItem(AUTH_KEY, data.token);
+        document.getElementById('authGate').classList.remove('show');
+        document.body.style.overflow = '';
+        loadAll();
+      } else {
+        err.textContent = '❌ Contraseña incorrecta';
+        document.getElementById('authInput').value = '';
+        document.getElementById('authInput').focus();
+      }
+    } catch (e) { err.textContent = '❌ Error de conexión'; }
+    finally { btn.disabled = false; btn.textContent = '🔐 Entrar'; }
+  }
+  initAuth();
+</script>
+</body>
+</html>
