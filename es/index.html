@@ -366,6 +366,12 @@
       text-align: center;
     }
     .stat-icon { font-size: 1.5rem; }
+    .stat-card.stat-plays {
+      background: linear-gradient(135deg, #E6FBF5, #E3F2FA);
+      border: 2px solid var(--green);
+    }
+    .stat-card.stat-plays .stat-icon { font-size: 1.7rem; }
+    .stat-card.stat-plays .stat-value { color: #04A87E; font-size: 1.5rem; }
     .stat-value {
       font-family: 'Fredoka One', cursive;
       font-size: 1.3rem;
@@ -696,6 +702,7 @@
       ? `ID BGG: <a href="https://boardgamegeek.com/boardgame/${g.bgg_id}" target="_blank">#${g.bgg_id} ↗</a>`
       : (g.name_original&&LANG==='es' ? `Nombre original: ${g.name_original}` : '');
     const stats = [
+      {icon:'🎯', value:(g.play_count||0), label:'Partidas jugadas', cls:'stat-plays'},
       {icon:'⭐', value:g.rating?parseFloat(g.rating).toFixed(1):'–', label:'Nota'},
       {icon:'🏆', value:g.bgg_rank?'#'+g.bgg_rank:'–', label:'Ranking BGG'},
       {icon:'👥', value:g.min_players!=null?(g.min_players===g.max_players||!g.max_players?g.min_players:g.min_players+'–'+g.max_players):'–', label:'Jugadores'},
@@ -711,7 +718,7 @@
       }).join('<br>'), label:'Disponibles'},
     ];
     document.getElementById('modalStats').innerHTML = stats.map(s=>
-      `<div class="stat-card"><div class="stat-icon">${s.icon}</div><span class="stat-value">${s.value}</span><div class="stat-label">${s.label}</div></div>`
+      `<div class="stat-card ${s.cls||''}"><div class="stat-icon">${s.icon}</div><span class="stat-value">${s.value}</span><div class="stat-label">${s.label}</div></div>`
     ).join('');
     document.getElementById('modalDesc').textContent = g.description||'';
     document.getElementById('modalOverlay').classList.add('open');
