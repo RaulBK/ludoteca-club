@@ -282,6 +282,7 @@
     .badge-players { background: #E8F4FD; color: var(--blue); }
     .badge-age     { background: #FFF3CD; color: #b8860b; }
     .badge-weight  { background: #F0FFF4; color: #1a7a4a; }
+    .badge-plays { background:#E6FBF5; color:#04A87E; }
 
     .card-rating {
       display: flex;
@@ -663,6 +664,7 @@
           ${g.min_players!=null?`<span class="badge badge-players">👥 ${g.min_players}${g.max_players&&g.max_players!==g.min_players?'–'+g.max_players:''}</span>`:''}
           ${g.min_age?`<span class="badge badge-age">🎂 +${g.min_age}</span>`:''}
           ${wpLabel?`<span class="badge badge-weight">${wpLabel}</span>`:''}
+          ${g.play_count>0?`<span class="badge badge-plays">🎯 ${g.play_count} partida${g.play_count===1?'':'s'}</span>`:''}
         </div>
         <div class="card-rating"><div><div class="rating-score">${rating}</div><div class="rating-stars">${stars}</div></div>${rank}</div>
       </div>
